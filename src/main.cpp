@@ -2,11 +2,9 @@
 #include "FS.h"
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
+#include "functions.h"
 
 const char* CONFIG_PATH = "/global_config.json";
-const char* ssid     = "xx";
-const char* password = "xx";
-
 JsonObject* config;
 
 void setup()
@@ -21,7 +19,7 @@ void setup()
     return;
   }
 
-	StaticJsonBuffer<200> jsonBuffer;
+	StaticJsonBuffer<800> jsonBuffer;
 	File file = SPIFFS.open(CONFIG_PATH, "r");
 	Serial.println("Reading config...");
 
@@ -35,20 +33,35 @@ void setup()
     return;
   }
 
-	Serial.print("Connecting to ");
-  Serial.println(ssid);
+	String MasterSSID = searchForMaster();
 
-  WiFi.begin(ssid, password);
+	if (MasterSSID.length() > 0) // I am the master, connect to gateway
+	{
+		Serial.print("Connecting to master ");
+	  Serial.println(MasterSSID);
+		String password = (*config)["mesh_password"];
+	  WiFi.begin(MasterSSID.c_str(), password.c_str());
+	}
+	else
+	{
+		Serial.print("Connecting to gateway ");
+		String ssid = (*config)["gateway_ssid"];
+		String password = (*config)["gateway_password"];
+	  Serial.println(ssid);
+	  WiFi.begin(ssid.c_str(), password.c_str());
+	}
 
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
+	while (WiFi.status() != WL_CONNECTED) {
+		delay(500);
+		Serial.print(".");
+	}
 
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+
+
 }
 
 void loop()
