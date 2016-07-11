@@ -15,13 +15,13 @@ String searchForMaster()
   /* Scan for APs */
   int n = WiFi.scanNetworks();
 
-  for (int i = 0; i < n; ++i) {
-		String current_ssid = WiFi.SSID(i);
-		int index = current_ssid.indexOf(ssidPrefix);
-		uint32_t target_chip_id = (current_ssid.substring(index + ssidPrefix.length())).toInt();
-    if (index >= 0 && (target_chip_id < currentChipId)) {
+  for (int i = 0; i < n; ++i) 
+  {
+    String current_ssid = WiFi.SSID(i);
+    int index = current_ssid.indexOf(ssidPrefix);
+    uint32_t target_chip_id = (current_ssid.substring(index + ssidPrefix.length())).toInt();
+    if (index >= 0 && (target_chip_id < currentChipId))
       currentChipId = target_chip_id;
-		}
   }
 
   if (currentChipId != ESP.getChipId())
