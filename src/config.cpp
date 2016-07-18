@@ -21,8 +21,6 @@ int readFieldInt(String rawConfig, String field)
 
 Config::Config(String file)
 {
-  delay(10000);
-  Serial.println("hola");
   m_file = file;
   readConfig();
 }
@@ -37,16 +35,43 @@ void Config::readConfig()
   }
   String rawConfig = file.readString();
 
-  ssid_prefix = readFieldString(rawConfig, "ssid_prefix");
-  ree_url = readFieldString(rawConfig, "ree_url");
-  proxy_url = readFieldString(rawConfig, "proxy_url");
-  mesh_password = readFieldString(rawConfig, "mesh_password");
-  gateway_ssid = readFieldString(rawConfig, "gateway_ssid");
-  gateway_password = readFieldString(rawConfig, "gateway_password");
-  type = readFieldInt(rawConfig, "type");
+  ssid_prefix = readFieldString(rawConfig, SSID_PREFIX);
+  ree_url = readFieldString(rawConfig, REE_URL);
+  proxy_url = readFieldString(rawConfig, PROXY_URL);
+  mesh_password = readFieldString(rawConfig, MESH_PASSWORD);
+  gateway_ssid = readFieldString(rawConfig, GATEWAY_SSID);
+  gateway_password = readFieldString(rawConfig, GATEWAY_PASSWORD);
+  type = readFieldInt(rawConfig, TYPE);
 }
 
 void Config::saveConfig()
 {
+  File file = SPIFFS.open(m_file, "w");
 
+  if (!file)
+  {
+    Serial.println("Error while reading config file.");
+    return;
+  }
+
+  file.println(String(SSID_PREFIX) + "=" + ssid_prefix + ";");
+  file.println(String(REE_URL) + "=" + ree_url + ";");
+  file.println(String(PROXY_URL) + "=" + proxy_url + ";");
+  file.println(String(MESH_PASSWORD) + "=" + mesh_password + ";");
+  file.println(String(GATEWAY_SSID) + "=" + gateway_ssid + ";");
+  file.println(String(GATEWAY_PASSWORD) + "=" + gateway_password + ";");
+  file.println(String(TYPE) + "=" + type + ";");
+  file.close();
+}
+
+String Config::getRaw()
+{
+  saveConfig();
+  File file = SPIFFS.open(m_file, "r");
+  if (!file)
+  {
+    Serial.println("Error while reading config file.");
+    return "";
+  }
+  return file.readString();
 }

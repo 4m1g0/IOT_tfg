@@ -57,4 +57,5 @@ void loop()
 	//int type = config.type;
 	//Serial.println(type);
 	delay(1000);
+	Serial.println(config->getRaw());
 }
