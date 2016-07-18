@@ -21,21 +21,29 @@ void setup()
   }
 
   config = new Config(CONFIG_PATH);
+
+  WiFi.mode(WIFI_AP_STA);
+  Serial.println((config->ssid_prefix + String(ESP.getChipId())).c_str());
+  WiFi.softAP((config->ssid_prefix + String(ESP.getChipId())).c_str(), "12345678");
+
   updateNetwork();
   lastNetworkUpdate = millis();
 }
 
 void loop()
 {
-  if (millis() - config->network_inerval > lastNetworkUpdate)
+  if (millis() > config->network_inerval + lastNetworkUpdate)
   {
+    Serial.println(config->network_inerval);
+    Serial.println(lastNetworkUpdate);
     updateNetwork();
     lastNetworkUpdate = millis();
   }
 
   if (isMaster())
   {
-    // master stuff
+    Serial.println("gola");
+    poolAllSlaves();
   }
   else
   {

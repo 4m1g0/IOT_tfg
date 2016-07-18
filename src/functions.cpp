@@ -80,3 +80,21 @@ void updateNetwork()
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 }
+
+void poolAllSlaves()
+{
+  String ssidPrefix = config->ssid_prefix;
+
+  /* Scan for APs */
+  int n = WiFi.scanNetworks();
+  int chips = 0;
+  for (int i = 0; i < n; ++i)
+  {
+    String current_ssid = WiFi.SSID(i);
+    int index = current_ssid.indexOf(ssidPrefix);
+    if (index >= 0)
+      chips++;
+  }
+
+  Serial.println(chips);
+}
