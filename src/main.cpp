@@ -1,11 +1,11 @@
 
 #include "FS.h"
-#include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include "functions.h"
 
-const char* CONFIG_PATH = "/global_config.json";
-JsonObject* config;
+const char* CONFIG_PATH = "/global_config.conf";
+
+Config* config;
 
 void setup()
 {
@@ -19,19 +19,7 @@ void setup()
     return;
   }
 
-	StaticJsonBuffer<800> jsonBuffer;
-	File file = SPIFFS.open(CONFIG_PATH, "r");
-	Serial.println("Reading config...");
-
-	if (file)
-	{
-		JsonObject& root = jsonBuffer.parseObject(file.readString());
-		config = &root;
-	}
-	else {
-    Serial.println("Failed to read config");
-    return;
-  }
+	config = new Config(CONFIG_PATH);
 
 	String MasterSSID = searchForMaster();
 
@@ -39,14 +27,14 @@ void setup()
 	{
 		Serial.print("Connecting to master ");
 	  Serial.println(MasterSSID);
-		String password = (*config)["mesh_password"];
+		String password = config->mesh_password;
 	  WiFi.begin(MasterSSID.c_str(), password.c_str());
 	}
 	else
 	{
 		Serial.print("Connecting to gateway ");
-		String ssid = (*config)["gateway_ssid"];
-		String password = (*config)["gateway_password"];
+		String ssid = config->gateway_ssid;
+		String password = config->gateway_password;
 	  Serial.println(ssid);
 	  WiFi.begin(ssid.c_str(), password.c_str());
 	}
@@ -66,7 +54,7 @@ void setup()
 
 void loop()
 {
-	int test = (*config)["test"];
-	Serial.println(test);
+	//int type = config.type;
+	//Serial.println(type);
 	delay(1000);
 }

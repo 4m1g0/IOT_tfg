@@ -1,6 +1,7 @@
-#include <ArduinoJson.h>
+#include "Arduino.h"
+#include "config.h"
 
-extern JsonObject* config;
+extern Config* config;
 
 String searchForMaster();
 void updateNetwork();

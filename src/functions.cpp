@@ -7,7 +7,7 @@
 **/
 String searchForMaster()
 {
-  String ssidPrefix = (*config)["ssid_prefix"];
+  String ssidPrefix = config->ssid_prefix;
 
   // The one with lowest chip id is master
   uint32_t currentChipId = ESP.getChipId();
@@ -15,7 +15,7 @@ String searchForMaster()
   /* Scan for APs */
   int n = WiFi.scanNetworks();
 
-  for (int i = 0; i < n; ++i) 
+  for (int i = 0; i < n; ++i)
   {
     String current_ssid = WiFi.SSID(i);
     int index = current_ssid.indexOf(ssidPrefix);
