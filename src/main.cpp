@@ -10,35 +10,35 @@ Config* config;
 
 void setup()
 {
-	Serial.begin(9600);
+  Serial.begin(9600);
   Serial.println("");
   delay(10000);
   Serial.println("Mounting FS...");
 
-	if (!SPIFFS.begin()) {
+  if (!SPIFFS.begin()) {
     Serial.println("Failed to mount file system");
     return;
   }
 
-	config = new Config(CONFIG_PATH);
-	updateNetwork();
-	lastNetworkUpdate = millis();
+  config = new Config(CONFIG_PATH);
+  updateNetwork();
+  lastNetworkUpdate = millis();
 }
 
 void loop()
 {
-	if (millis() - config->network_inerval > lastNetworkUpdate)
-	{
-		updateNetwork();
-		lastNetworkUpdate = millis();
-	}
+  if (millis() - config->network_inerval > lastNetworkUpdate)
+  {
+    updateNetwork();
+    lastNetworkUpdate = millis();
+  }
 
-	if (isMaster())
-	{
-		// master stuff
-	}
-	else
-	{
-		// slave stuff
-	}
+  if (isMaster())
+  {
+    // master stuff
+  }
+  else
+  {
+    // slave stuff
+  }
 }
