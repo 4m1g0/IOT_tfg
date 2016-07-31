@@ -1,6 +1,7 @@
 #include "functions.h"
 #include "Arduino.h"
 #include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
 
 /**
 * Gets the SSID of the master or empty string if I am the master
@@ -45,10 +46,13 @@ void updateNetwork()
   if (WiFi.status() == WL_CONNECTED && currentSSID.compareTo(MasterSSID) == 0)
   {
     Serial.println("same network");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
     return;
   }
 
-  if (MasterSSID.length() > 0)
+  bool iamMaster = MasterSSID.length() <= 0;
+  if (!iamMaster)
   {
     Serial.print("Connecting to master ");
     Serial.println(MasterSSID);
@@ -97,4 +101,37 @@ void poolAllSlaves()
   }
 
   Serial.println(chips);
+}
+
+void handleConfig(ESP8266WebServer* server) {
+  bool modified = false;
+
+  for (uint8_t i=0; i<server->args(); i++){
+    if (server->argName(i) == "ssid")
+    {
+      config->gateway_ssid = server->arg(i);
+      modified = true;
+    }
+    else if (server->argName(i) == "pass")
+    {
+      config->gateway_password = server->arg(i);
+      modified = true;
+    }
+    else if (server->argName(i) == "prefix")
+    {
+      config->ssid_prefix = server->arg(i);
+      modified = true;
+    }
+  }
+
+  if (!modified)
+  {
+    config->saveConfig();
+    char content[] = "<html><head><title>Configuration</title></head><body><form method=\"GET\"><table style=\"margin:50px auto;width:350px;\"><tr><td align=\"center\" colspan=\"2\"><b>Configuration</b></td></tr><tr><td>Network prefix:</td><td><input type=\"text\" name=\"prefix\" /></td></tr><tr><td>GateWay SSID:</td><td><input type=\"text\" name=\"ssid\" /></td></tr><tr><td>Gateway password:</td><td><input type=\"password\" name=\"pass\" /></td></tr><tr><td align=\"center\" colspan=\"2\"><input type=\"submit\" value=\"Send\" /></td></tr></table></form></body></html>";
+    server->send(200, "text/html; charset=UTF-8", content);
+  }
+  else
+  {
+    server->send(200, "text/html; charset=UTF-8", "<html><head><title>Configuration</title></head><body><div style=\"font-weight:bolder;font-size:2em;margin:40px auto;width:20px;\">OK</div></body></html>");
+  }
 }

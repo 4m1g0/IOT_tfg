@@ -1,12 +1,22 @@
 
 #include "FS.h"
 #include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
 #include "functions.h"
 
 const char* CONFIG_PATH = "/global_config.conf";
 unsigned long lastNetworkUpdate = 0;
 
 Config* config;
+ESP8266WebServer configServer(80); // Config server (web)
+WiFiServer masterServer(7001);
+WiFiServer slaveServer(7002);
+WiFiServer remoteServer(8000);
+
+void callback()
+{
+  handleConfig(&configServer);
+}
 
 void setup()
 {
@@ -28,6 +38,11 @@ void setup()
 
   updateNetwork();
   lastNetworkUpdate = millis();
+
+  configServer.on("/", callback);
+  configServer.begin();
+
+  remoteServer.begin();
 }
 
 void loop()
@@ -40,10 +55,21 @@ void loop()
     lastNetworkUpdate = millis();
   }
 
+  // master and slave must listen for new config
+  configServer.handleClient();
+
   if (isMaster())
   {
+      slaveServer.stop(); // if closed does nothing
+      if (masterServer.status() == CLOSED)
+        masterServer.begin();
+
+
+
+
     Serial.println("gola");
-    poolAllSlaves();
+    Serial.println(config->getRaw());
+    //poolAllSlaves();
   }
   else
   {
