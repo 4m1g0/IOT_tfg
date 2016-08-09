@@ -7,6 +7,7 @@ const char* const MESH_PASSWORD = "mesh_password";
 const char* const GATEWAY_SSID = "gateway_ssid";
 const char* const GATEWAY_PASSWORD = "gateway_password";
 const char* const NETWORK_INTERVAL = "network_interval";
+const char* const NETWORK_ID = "network_id";
 const char* const TYPE = "type";
 
 class Config
@@ -20,6 +21,7 @@ public:
   String mesh_password;
   String gateway_ssid;
   String gateway_password;
+  String network_id;
   int network_inerval;
   int type;
 

@@ -5,6 +5,7 @@
 #include "functions.h"
 #include "MeshServer.h"
 #include "RemoteServer.h"
+#include "CurrentMeter.h"
 
 const char* CONFIG_PATH = "/global_config.conf";
 unsigned long lastNetworkUpdate = 0;
@@ -13,6 +14,8 @@ Config* config;
 ESP8266WebServer configServer(80); // Config server (web)
 MeshServer meshServer(7001);
 RemoteServer remoteServer(8000);
+
+CurrentMeter currentMeter(A0);
 
 void setup()
 {
@@ -63,6 +66,10 @@ void loop()
 
     remoteServer.handleClient();
 
+
+
+    //Serial.println(currentMeter.measure());
+    //delay(500);
 
   }
   else

@@ -122,16 +122,21 @@ void handleConfig(ESP8266WebServer* server) {
       config->ssid_prefix = server->arg(i);
       modified = true;
     }
+    else if (server->argName(i) == "id")
+    {
+      config->network_id = server->arg(i);
+      modified = true;
+    }
   }
 
   if (!modified)
   {
-    config->saveConfig();
-    char content[] = "<html><head><title>Configuration</title></head><body><form method=\"GET\"><table style=\"margin:50px auto;width:350px;\"><tr><td align=\"center\" colspan=\"2\"><b>Configuration</b></td></tr><tr><td>Network prefix:</td><td><input type=\"text\" name=\"prefix\" /></td></tr><tr><td>GateWay SSID:</td><td><input type=\"text\" name=\"ssid\" /></td></tr><tr><td>Gateway password:</td><td><input type=\"password\" name=\"pass\" /></td></tr><tr><td align=\"center\" colspan=\"2\"><input type=\"submit\" value=\"Send\" /></td></tr></table></form></body></html>";
+    char content[] = "<html><head><title>Configuration</title></head><body><form method=\"GET\"><table style=\"margin:50px auto;width:350px;\"><tr><td align=\"center\" colspan=\"2\"><b>Configuration</b></td></tr><tr><td>Network prefix:</td><td><input type=\"text\" name=\"prefix\" /></td></tr><tr><td>Network id:</td><td><input type=\"text\" name=\"id\" /></td></tr><tr><td>GateWay SSID:</td><td><input type=\"text\" name=\"ssid\" /></td></tr><tr><td>Gateway password:</td><td><input type=\"password\" name=\"pass\" /></td></tr><tr><td align=\"center\" colspan=\"2\"><input type=\"submit\" value=\"Send\" /></td></tr></table></form></body></html>";
     server->send(200, "text/html; charset=UTF-8", content);
   }
   else
   {
+    config->saveConfig();
     server->send(200, "text/html; charset=UTF-8", "<html><head><title>Configuration</title></head><body><div style=\"font-weight:bolder;font-size:2em;margin:40px auto;width:20px;\">OK</div></body></html>");
   }
 }

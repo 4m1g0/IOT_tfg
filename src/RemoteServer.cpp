@@ -7,7 +7,7 @@ bool RemoteServer::_connect()
 {
   if (_client.connect(config->proxy_url.c_str(), _port))
   {
-    _client.println("ID: " + String(ESP.getChipId()));
+    _client.println("ID: " + config->network_id);
     return true;
   }
   else
