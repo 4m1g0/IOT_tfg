@@ -3,16 +3,16 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include "functions.h"
-#include "mesh_server.h"
+#include "MeshServer.h"
+#include "RemoteServer.h"
 
 const char* CONFIG_PATH = "/global_config.conf";
 unsigned long lastNetworkUpdate = 0;
 
 Config* config;
-MeshServer configServer(80); // Config server (web)
-MeshServer masterServer(7001);
-MeshServer slaveServer(7002);
-MeshServer remoteServer(8000);
+ESP8266WebServer configServer(80); // Config server (web)
+MeshServer meshServer(7001);
+RemoteServer remoteServer(8000);
 
 void setup()
 {
@@ -36,11 +36,11 @@ void setup()
   lastNetworkUpdate = millis();
 
 
-  remoteServer.on("/", [](){ handleConfig(&remoteServer); });
+  remoteServer.addHandler([](WiFiClient client){ Serial.println(client.readString()); });
   configServer.on("/", [](){ handleConfig(&configServer); });
-  masterServer.on("/", [](){ handleConfig(&masterServer); });
-  slaveServer.on("/", [](){ handleConfig(&slaveServer); });
+  meshServer.on("/", [](){ handleConfig(&meshServer); });
   configServer.begin();
+  meshServer.begin();
 }
 
 void loop()
@@ -58,31 +58,20 @@ void loop()
 
   if (isMaster())
   {
-    slaveServer.stop(); // if closed does nothing
-    if (masterServer.status() == CLOSED)
-      masterServer.begin();
-
     if (remoteServer.status() == CLOSED)
       remoteServer.begin();
 
     remoteServer.handleClient();
-    masterServer.handleClient();
 
 
-    //Serial.println("gola");
-    //Serial.println(config->getRaw());
-    //poolAllSlaves();
   }
   else
   {
-    masterServer.stop(); // if closed does nothing
-    remoteServer.stop();
+    remoteServer.stop(); // if closed does nothing
 
-    if (slaveServer.status() == CLOSED)
-      slaveServer.begin();
-
-    slaveServer.handleClient();
 
     // slave stuff
   }
+
+  meshServer.handleClient();
 }
