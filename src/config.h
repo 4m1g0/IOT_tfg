@@ -25,6 +25,11 @@ public:
   int network_inerval;
   int type;
 
+  // const values
+  static const int measure_inerval = 60 * 1000; // 1m
+  static const int updatetime_inerval = 10 * 60 * 1000; // 10m
+  static const String NTP_address;
+
   Config(String file);
   void readConfig();
   void saveConfig();

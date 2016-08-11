@@ -3,12 +3,16 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include "functions.h"
-#include "MeshServer.h"
-#include "RemoteServer.h"
+#include "network/MeshServer.h"
+#include "network/RemoteServer.h"
 #include "CurrentMeter.h"
+#include "Clock.h"
 
 const char* CONFIG_PATH = "/global_config.conf";
 unsigned long lastNetworkUpdate = 0;
+unsigned long lastMeasure = 0;
+unsigned long lastTimeUpdate = 0;
+const uint8_t ACT_PIN = D0;
 
 Config* config;
 ESP8266WebServer configServer(80); // Config server (web)
@@ -19,6 +23,8 @@ CurrentMeter currentMeter(A0);
 
 void setup()
 {
+  pinMode(ACT_PIN, OUTPUT);
+  digitalWrite(ACT_PIN, HIGH);
   Serial.begin(9600);
   Serial.println("");
   delay(10000);
@@ -38,8 +44,13 @@ void setup()
   updateNetwork();
   lastNetworkUpdate = millis();
 
+  if (isMaster())
+  {
+    Clock::updateTime();
+    lastTimeUpdate = millis();
+  }
 
-  remoteServer.addHandler([](WiFiClient client){ Serial.println(client.readString()); });
+  remoteServer.on("/", [](){ remoteServer.send(200, "text/html; charset=UTF-8", "hola"); });
   configServer.on("/", [](){ handleConfig(&configServer); });
   meshServer.on("/", [](){ handleConfig(&meshServer); });
   configServer.begin();
@@ -48,7 +59,10 @@ void setup()
 
 void loop()
 {
-  if (millis() > config->network_inerval + lastNetworkUpdate)
+  //Serial.println((unsigned long) 0 - 4294967287UL); in memoriam
+
+  // network update
+  if ((unsigned long)(millis() - lastNetworkUpdate) > config->network_inerval)
   {
     Serial.println(config->network_inerval);
     Serial.println(lastNetworkUpdate);
@@ -56,6 +70,19 @@ void loop()
     lastNetworkUpdate = millis();
   }
 
+  if ((unsigned long)(millis() - lastMeasure) > config->measure_inerval)
+  {
+    // measure current and save it in the history
+    lastMeasure = millis();
+  }
+
+  if ((unsigned long)(millis() - lastTimeUpdate) > config->updatetime_inerval)
+  {
+    Clock::updateTime();
+    lastTimeUpdate = millis();
+  }
+
+  
   // master and slave must listen for new config
   configServer.handleClient();
 
@@ -69,7 +96,10 @@ void loop()
 
 
     //Serial.println(currentMeter.measure());
-    //delay(500);
+    /*digitalWrite(ACT_PIN, LOW);
+    delay(2000);
+    digitalWrite(ACT_PIN, HIGH);
+    delay(2000);*/
 
   }
   else

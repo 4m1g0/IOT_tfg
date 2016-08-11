@@ -1,6 +1,8 @@
 #include "config.h"
 #include "FS.h"
 
+const String Config::NTP_address = "0.europe.pool.ntp.org";
+
 String readFieldString(String rawConfig, String field)
 {
   int index = rawConfig.indexOf(field);
