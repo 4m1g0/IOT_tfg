@@ -7,7 +7,9 @@
 #include "network/RemoteServer.h"
 #include "CurrentMeter.h"
 #include "Clock.h"
+#include "testSuit/Test.h"
 
+#define TESTSUIT true
 const char* CONFIG_PATH = "/global_config.conf";
 unsigned long lastNetworkUpdate = 0;
 unsigned long lastMeasure = 0;
@@ -49,6 +51,10 @@ void setup()
     Clock::updateTime();
     lastTimeUpdate = millis();
   }
+  else
+  {
+    // Ask master for time
+  }
 
   remoteServer.on("/", [](){ remoteServer.send(200, "text/html; charset=UTF-8", "hola"); });
   configServer.on("/", [](){ handleConfig(&configServer); });
@@ -60,6 +66,13 @@ void setup()
 void loop()
 {
   //Serial.println((unsigned long) 0 - 4294967287UL); in memoriam
+
+#if TESTSUIT
+  Test::testAll();
+  delay(10000);
+#endif
+
+//
 
   // network update
   if ((unsigned long)(millis() - lastNetworkUpdate) > config->network_inerval)
@@ -82,7 +95,7 @@ void loop()
     lastTimeUpdate = millis();
   }
 
-  
+
   // master and slave must listen for new config
   configServer.handleClient();
 
