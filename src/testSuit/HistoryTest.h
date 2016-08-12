@@ -8,5 +8,6 @@ class HistoryTest
 public:
   static void testAll();
   static void testRecord();
+  static void testHistory();
 };
 #endif

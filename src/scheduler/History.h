@@ -3,26 +3,30 @@
 #include "../Serializable.h"
 
 template <class T>
-class Record : Serializable
+class Record
 {
+  // We don't have enough memory to hold this object in memory
 public:
+  Record();
+  Record(unsigned long timestamp, T value);
   void fromJson(JsonObject& json);
   JsonObject& toJson();
-  long timestamp;
+  unsigned long timestamp;
   T value;
 };
 
-template <class T>
-class History : Serializable
+class History
 {
 public:
-  void fromJson(String json);
-  String toJson();
-  void addValue(T value);
+  History();
+  void fromJson(JsonArray& json);
+  JsonArray& toJson();
+  void addValue(unsigned short value);
 
 protected:
-  static const int N = 60*24;
-  Record<T> _records[N];
+  static const int N = 60;
+  //Record<T> _records[N];
+  unsigned short _records[N];
   int _last;
   int _next(int n);
 };

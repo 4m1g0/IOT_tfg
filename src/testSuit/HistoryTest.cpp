@@ -7,14 +7,12 @@
 void HistoryTest::testAll()
 {
   testRecord();
-
+  testHistory();
 }
 
 void HistoryTest::testRecord()
 {
-  Record<float> record;
-  record.timestamp = 12345;
-  record.value = 1.234f;
+  Record<float> record(12345, 1.234f);
 
   JsonObject& json = record.toJson();
   json.prettyPrintTo(Serial);
@@ -29,4 +27,13 @@ void HistoryTest::testRecord()
   else
     Serial.println("FAILED");
   Serial.println("==========================");
+}
+
+void HistoryTest::testHistory()
+{
+  History history;
+
+  JsonArray& json = history.toJson();
+  json.printTo(Serial);
+  Serial.println();
 }

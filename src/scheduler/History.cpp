@@ -4,6 +4,18 @@
 #include <ArduinoJson.h>
 
 template <class T>
+Record<T>::Record()
+: timestamp(0)
+, value(0)
+{ }
+
+template <class T>
+Record<T>::Record(unsigned long timestamp, T value)
+: timestamp(timestamp)
+, value(value)
+{ }
+
+template <class T>
 JsonObject& Record<T>::toJson()
 {
   DynamicJsonBuffer jsonBuffer;
@@ -13,31 +25,44 @@ JsonObject& Record<T>::toJson()
   return root;
 }
 
-// This tells the compiler which types are going to be used so that it can
-// compile a instance of this class for that especific type.
-// Thanks for this to Aaron McDaid (http://stackoverflow.com/questions/8752837)
-template class Record<float>;
-
 template <class T>
 void Record<T>::fromJson(JsonObject& json)
 {
-  timestamp = json.get<long>("t");
+  timestamp = json.get<unsigned long>("t");
   value = json.get<float>("v");
 }
 
-template <class T>
-int History<T>::_next(int n)
+History::History()
+: _last(0)
 {
-  return ++n/N;
+  for (int i = 0; i < N; i++)
+    _records[i] = 0;
 }
 
-template <class T>
-void History<T>::addValue(T value)
+void History::addValue(unsigned short value)
 {
-  Record<T> record;
-  record.timestamp = Clock::getUnixTime();
-  record.value = value;
-
-  _records[_last] = record;
   _last = _next(_last);
+  _records[_last] = value;
 }
+
+JsonArray& History::toJson()
+{
+  DynamicJsonBuffer jsonBuffer;
+  JsonArray& root = jsonBuffer.createArray();
+  for (int i = _next(_last); i != _last; i = _next(i))
+    root.add<unsigned short>(_records[i]);
+
+  root.add<unsigned short>(_records[_last]);
+  return root;
+}
+
+int History::_next(int n)
+{
+  return ++n%N;
+}
+
+// This tells the compiler which types are going to be used so that it can
+// compile a instance of this class for that especific type.
+// Thanks for this to Aaron McDaid (http://stackoverflow.com/questions/8752837)
+//template class History<float>;
+template class Record<float>;
