@@ -1,6 +1,20 @@
+#ifndef  HISTORY_H
+#define HISTORY_H
+
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include "../Serializable.h"
+
+struct myJsonObject
+{
+  const JsonObject& refence;
+};
+
+struct myJsonArray
+{
+  myJsonArray(const JsonArray& r) : refence(r) { }
+  const JsonArray& refence;
+};
 
 template <class T>
 class Record
@@ -20,7 +34,7 @@ class History
 public:
   History();
   void fromJson(JsonArray& json);
-  JsonArray& toJson();
+  myJsonArray toJson(Print &stream);
   void addValue(unsigned short value);
 
 protected:
@@ -30,3 +44,4 @@ protected:
   int _last;
   int _next(int n);
 };
+#endif

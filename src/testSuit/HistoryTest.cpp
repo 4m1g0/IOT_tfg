@@ -1,4 +1,3 @@
-
 #include <Arduino.h>
 #include "HistoryTest.h"
 #include "../scheduler/History.h"
@@ -26,14 +25,14 @@ void HistoryTest::testRecord()
     Serial.println("PASSED");
   else
     Serial.println("FAILED");
-  Serial.println("==========================");
+  Serial.println("===========================");
 }
 
 void HistoryTest::testHistory()
 {
   History history;
 
-  JsonArray& json = history.toJson();
-  json.printTo(Serial);
+  history.toJson(Serial);
   Serial.println();
+  Serial.println("===========================");
 }

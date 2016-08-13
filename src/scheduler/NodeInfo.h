@@ -1,5 +1,11 @@
 #include <Arduino.h>
 #include "../Serializable.h"
+#include "History.h"
+#include <ArduinoJson.h>
+#include <vector>
+#include "Schedule.h"
+
+const int MAX_SCHEDULES = 3;
 
 enum NodeStatus { ON, OFF };
 enum NodeType
@@ -10,12 +16,18 @@ enum NodeType
   REAL_TIME // Can not be scheduled nor stoped
 };
 
-class NodeInfo : Serializable
+class NodeInfo
 {
 public:
   NodeStatus status;
   NodeType type;
-  std::list<int> lista;
+  History history;
+  unsigned long lastRun;
+  std::vector<Schedule> schedules;
+
+  int addSchedule(Schedule schedule);
+  void fromJson(JsonObject& json);
+  void toJson(Print &stream); // doesn't return history
 protected:
 
 };
