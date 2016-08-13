@@ -1,15 +1,11 @@
 #include "Schedule.h"
 
-JsonObject& Schedule::toJson()
+void Schedule::toJson(JsonObject& json)
 {
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject& root = jsonBuffer.createObject();
-  root.set<unsigned long>("s", startTime);
-  root.set<unsigned long>("e", endTime);
-  root.set<unsigned long>("d", duration);
-  root.set<unsigned long>("r", repeatEvery);
-
-  return root;
+  json.set<unsigned long>("s", startTime);
+  json.set<unsigned long>("e", endTime);
+  json.set<unsigned long>("d", duration);
+  json.set<unsigned long>("r", repeatEvery);
 }
 
 void Schedule::fromJson(JsonObject& json)

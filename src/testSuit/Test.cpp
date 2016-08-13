@@ -7,6 +7,6 @@
 void Test::testAll()
 {
   HistoryTest::testAll();
-  ScheduleTest::testAll();
-  NodeInfoTest::testAll();
+  //ScheduleTest::testAll();
+  //NodeInfoTest::testAll();
 }

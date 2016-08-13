@@ -1,10 +1,11 @@
-#ifndef SCHEDILE_H
-#define SCHEDILE_H
+#ifndef SCHEDULE_H
+#define SCHEDULE_H
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
+#include "../Serializable.h"
 
-class Schedule
+class Schedule : public Serializable<JsonObject&>
 {
 public:
   unsigned long startTime;
@@ -12,7 +13,7 @@ public:
   unsigned long duration;
   unsigned long repeatEvery;
 
-  JsonObject& toJson();
+  void toJson(JsonObject& json);
   void fromJson(JsonObject& json);
 };
 #endif

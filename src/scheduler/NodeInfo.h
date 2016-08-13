@@ -16,7 +16,7 @@ enum NodeType
   REAL_TIME // Can not be scheduled nor stoped
 };
 
-class NodeInfo
+class NodeInfo : public Serializable<JsonObject&>
 {
 public:
   NodeStatus status;
@@ -27,7 +27,7 @@ public:
 
   int addSchedule(Schedule schedule);
   void fromJson(JsonObject& json);
-  void toJson(Print &stream); // doesn't return history
+  void toJson(JsonObject& json); // doesn't return history
 protected:
 
 };

@@ -5,7 +5,7 @@
 
 void HistoryTest::testAll()
 {
-  testRecord();
+  //testRecord();
   testHistory();
 }
 
@@ -32,7 +32,17 @@ void HistoryTest::testHistory()
 {
   History history;
 
-  history.toJson(Serial);
+  history.addValue(1);
+  history.addValue(2);
+  history.addValue(3);
+  history.addValue(4);
+  history.addValue(5);
+  history.addValue(6);
+
+  DynamicJsonBuffer jsonBuffer;
+  JsonArray& json = jsonBuffer.createArray();
+  history.toJson(json);
+  json.printTo(Serial);
   Serial.println();
   Serial.println("===========================");
 }

@@ -10,20 +10,24 @@ int NodeInfo::addSchedule(Schedule schedule)
   return schedules.size();
 }
 
-void NodeInfo::toJson(Print &stream)
+void NodeInfo::toJson(JsonObject& json)
 {
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject& root = jsonBuffer.createObject();
-  root.set<short>("s", status);
-  root.set<short>("t", type);
-  root.set<unsigned long>("l", lastRun);
+  json.set<short>("s", status);
+  json.set<short>("t", type);
+  json.set<unsigned long>("l", lastRun);
 
-  JsonArray& array = root.createNestedArray("sh");
+  // REMOVE THIS!!!!
+  JsonArray& arrayHistory = json.createNestedArray("h");
+  history.toJson(arrayHistory);
+  // REMOVE THIS!!!!
+
+  JsonArray& arraySchedules = json.createNestedArray("sh");
 
   for (std::vector<Schedule>::iterator it = schedules.begin(); it != schedules.end(); ++it)
-    array.add(it->toJson());
-
-  root.printTo(stream);
+  {
+    JsonObject& jsonObject = arraySchedules.createNestedObject();
+    it->toJson(jsonObject);
+  }
 }
 
 void NodeInfo::fromJson(JsonObject& json)

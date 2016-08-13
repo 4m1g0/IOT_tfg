@@ -45,18 +45,26 @@ void History::addValue(unsigned short value)
   _records[_last] = value;
 }
 
-myJsonArray History::toJson(Print &stream)
+
+void History::toJson(JsonArray& json)
 {
-  DynamicJsonBuffer jsonBuffer;
-  myJsonArray jsonArray(jsonBuffer.createArray());
-  //jsonArray.refence = jsonBuffer.createArray();
   for (int i = _next(_last); i != _last; i = _next(i))
-    jsonArray.refence.add(0);
+    json.add(0);
 
-  //root.add<unsigned short>(_records[_last]);
+  json.add<unsigned short>(_records[_last]);
+}
 
+void History::fromJson(JsonArray& json)
+{
+  int i,j;
+  for (i = json.size() > N ? json.size() - N : 0, j = 0;
+       i < json.size();
+       i++, j++)
+  {
+    _records[j] = json.get(i);
+  }
 
-  //root.prettyPrintTo(stream);
+  _last = j;
 }
 
 int History::_next(int n)

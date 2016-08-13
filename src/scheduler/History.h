@@ -5,17 +5,6 @@
 #include <ArduinoJson.h>
 #include "../Serializable.h"
 
-struct myJsonObject
-{
-  const JsonObject& refence;
-};
-
-struct myJsonArray
-{
-  myJsonArray(const JsonArray& r) : refence(r) { }
-  const JsonArray& refence;
-};
-
 template <class T>
 class Record
 {
@@ -29,12 +18,12 @@ public:
   T value;
 };
 
-class History
+class History : public Serializable<JsonArray&>
 {
 public:
   History();
   void fromJson(JsonArray& json);
-  myJsonArray toJson(Print &stream);
+  void toJson(JsonArray& json);
   void addValue(unsigned short value);
 
 protected:

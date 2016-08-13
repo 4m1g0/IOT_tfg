@@ -14,7 +14,9 @@ void ScheduleTest::testSchedule()
   schedule.startTime = 67394;
   schedule.repeatEvery = 98765;
 
-  JsonObject& json = schedule.toJson();
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject& json = jsonBuffer.createObject();
+  schedule.toJson(json);
   json.prettyPrintTo(Serial);
   Serial.println();
   Serial.println("===========================");

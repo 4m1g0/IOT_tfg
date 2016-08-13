@@ -3,10 +3,13 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
+template <class T>
 class Serializable
 {
 public:
-  virtual JsonObject& toJson() = 0;
-  virtual void fromJson(JsonObject& json) = 0;
+  virtual void toJson(T json) = 0;
+  virtual void fromJson(T json) = 0;
 };
+
+
 #endif
