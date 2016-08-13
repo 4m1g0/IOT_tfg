@@ -72,6 +72,19 @@ void loop()
   delay(10000);
 #endif
 
+/*Serial.println("hola");
+Serial.print("float: ");
+float test1 = 907.02;
+Serial.println(test1);
+unsigned short test2 = test1;
+Serial.print("short: ");
+Serial.println(test2);
+Serial.print("float*100: ");
+float test3 = test1 * 100;
+Serial.println(test3);
+Serial.print("short*100: ");
+unsigned short test4 = test3;
+Serial.println(test4);*/
 //
 
   // network update
@@ -81,16 +94,19 @@ void loop()
     Serial.println(lastNetworkUpdate);
     updateNetwork();
     lastNetworkUpdate = millis();
+    Serial.println("network");
   }
 
   if ((unsigned long)(millis() - lastMeasure) > config->measure_inerval)
   {
+    Serial.println("measure");
     // measure current and save it in the history
     lastMeasure = millis();
   }
 
   if ((unsigned long)(millis() - lastTimeUpdate) > config->updatetime_inerval)
   {
+    Serial.println("clock");
     Clock::updateTime();
     lastTimeUpdate = millis();
   }
@@ -101,18 +117,18 @@ void loop()
 
   if (isMaster())
   {
-    if (remoteServer.status() == CLOSED)
-      remoteServer.begin();
+    //if (remoteServer.status() == CLOSED)
+    //  remoteServer.begin();
 
-    remoteServer.handleClient();
+    //remoteServer.handleClient();
 
 
 
     //Serial.println(currentMeter.measure());
-    /*digitalWrite(ACT_PIN, LOW);
-    delay(2000);
-    digitalWrite(ACT_PIN, HIGH);
-    delay(2000);*/
+    //digitalWrite(ACT_PIN, LOW);
+    //delay(2000);
+    //digitalWrite(ACT_PIN, HIGH);
+    //delay(2000);
 
   }
   else

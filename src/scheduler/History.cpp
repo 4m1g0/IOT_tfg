@@ -49,7 +49,7 @@ void History::addValue(unsigned short value)
 void History::toJson(JsonArray& json)
 {
   for (int i = _next(_last); i != _last; i = _next(i))
-    json.add(0);
+    json.add(_records[i]);
 
   json.add<unsigned short>(_records[_last]);
 }

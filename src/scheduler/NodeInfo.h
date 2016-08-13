@@ -28,6 +28,7 @@ public:
   int addSchedule(Schedule schedule);
   void fromJson(JsonObject& json);
   void toJson(JsonObject& json); // doesn't return history
+  void toJsonDetails(JsonObject& json); // do return history (memory expensive)
 protected:
 
 };

@@ -36,7 +36,7 @@ void NodeInfoTest::testNodeInfo()
 
   DynamicJsonBuffer jsonBuffer;
   JsonObject& json = jsonBuffer.createObject();
-  nodeInfo.toJson(json);
+  nodeInfo.toJsonDetails(json);
   json.prettyPrintTo(Serial);
   Serial.println();
   Serial.println("===========================");
