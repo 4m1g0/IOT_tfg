@@ -1,4 +1,4 @@
-
+#include <Arduino.h>
 #include "FS.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
@@ -8,8 +8,9 @@
 #include "CurrentMeter.h"
 #include "Clock.h"
 #include "testSuit/Test.h"
+#include "scheduler/NodeInfo.h"
 
-#define TESTSUIT true
+#define TESTSUIT false
 const char* CONFIG_PATH = "/global_config.conf";
 unsigned long lastNetworkUpdate = 0;
 unsigned long lastMeasure = 0;
@@ -17,6 +18,8 @@ unsigned long lastTimeUpdate = 0;
 const uint8_t ACT_PIN = D0;
 
 Config* config;
+NodeInfo* nodeInfo;
+
 ESP8266WebServer configServer(80); // Config server (web)
 MeshServer meshServer(7001);
 RemoteServer remoteServer(8000);
@@ -26,7 +29,7 @@ CurrentMeter currentMeter(A0);
 void setup()
 {
   pinMode(ACT_PIN, OUTPUT);
-  digitalWrite(ACT_PIN, HIGH);
+  digitalWrite(ACT_PIN, LOW);
   Serial.begin(9600);
   Serial.println("");
   delay(10000);
@@ -38,6 +41,15 @@ void setup()
   }
 
   config = new Config(CONFIG_PATH);
+  nodeInfo = new NodeInfo();
+
+  // TEST REMOVE
+  Schedule schedule1;
+  schedule1.duration = 200;
+  schedule1.endTime = 14057495;
+  schedule1.startTime = 14057495;
+  schedule1.repeatEvery = 100655;
+  nodeInfo->addSchedule(schedule1);
 
   WiFi.mode(WIFI_AP_STA);
   Serial.println((config->ssid_prefix + String(ESP.getChipId())).c_str());
@@ -56,7 +68,13 @@ void setup()
     // Ask master for time
   }
 
-  remoteServer.on("/", [](){ remoteServer.send(200, "text/html; charset=UTF-8", "hola"); });
+  remoteServer.on("/", [](){ remoteServer.send(200, "text/html; charset=UTF-8", "It Works!"); });
+  remoteServer.on("/info", [](){
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject& json = jsonBuffer.createObject();
+    nodeInfo->toJson(json);
+    remoteServer.sendJson(200, json);
+  });
   configServer.on("/", [](){ handleConfig(&configServer); });
   meshServer.on("/", [](){ handleConfig(&meshServer); });
   configServer.begin();
@@ -72,21 +90,6 @@ void loop()
   delay(10000);
 #endif
 
-/*Serial.println("hola");
-Serial.print("float: ");
-float test1 = 907.02;
-Serial.println(test1);
-unsigned short test2 = test1;
-Serial.print("short: ");
-Serial.println(test2);
-Serial.print("float*100: ");
-float test3 = test1 * 100;
-Serial.println(test3);
-Serial.print("short*100: ");
-unsigned short test4 = test3;
-Serial.println(test4);*/
-//
-
   // network update
   if ((unsigned long)(millis() - lastNetworkUpdate) > config->network_inerval)
   {
@@ -99,8 +102,11 @@ Serial.println(test4);*/
 
   if ((unsigned long)(millis() - lastMeasure) > config->measure_inerval)
   {
-    Serial.println("measure");
     // measure current and save it in the history
+    Serial.println("Measuring...");
+    unsigned short current = currentMeter.measure();
+    Serial.print("Current: "); Serial.println(current);
+    nodeInfo->history.addValue(current);
     lastMeasure = millis();
   }
 
@@ -117,10 +123,10 @@ Serial.println(test4);*/
 
   if (isMaster())
   {
-    //if (remoteServer.status() == CLOSED)
-    //  remoteServer.begin();
+    if (remoteServer.status() == CLOSED)
+      remoteServer.begin();
 
-    //remoteServer.handleClient();
+    remoteServer.handleClient();
 
 
 
