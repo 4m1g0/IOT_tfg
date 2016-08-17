@@ -28,6 +28,9 @@ public:
   // const values
   static const int measure_inerval = 60 * 1000; // 1m
   static const int updatetime_inerval = 10 * 60 * 1000; // 10m
+  static const int schedule_inerval = 2 * 60 * 1000; // 2m
+  static const int pricingUpdate_inerval = 5 * 60 * 1000; // 5m
+  static const int time_ofset = 2 * 60 * 60; // 2h (GTM+2)
   static const String NTP_address;
 
   Config(String file);

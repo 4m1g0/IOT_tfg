@@ -6,6 +6,9 @@ class Clock
 {
 public:
   static unsigned long getUnixTime();
+  static String getHumanTime();
+  static String getHumanDate();
+  static String getHumanDateTime();
   static void updateTime();
 
 protected:

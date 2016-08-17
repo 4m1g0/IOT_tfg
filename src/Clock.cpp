@@ -3,6 +3,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include "config.h"
+#include <time.h>
 
 extern Config* config;
 unsigned long Clock::_unixTime;
@@ -61,7 +62,7 @@ void Clock::updateTime()
   // this is NTP time (seconds since Jan 1 1900):
   unsigned long secsSince1900 = highWord << 16 | lowWord;
   const unsigned long seventyYears = 2208988800UL;
-  _unixTime = secsSince1900 - seventyYears;
+  _unixTime = (secsSince1900 - seventyYears) + config->time_ofset;
   _lastUpdateSeconds = millis() / 1000;
 }
 
@@ -69,4 +70,77 @@ unsigned long Clock::getUnixTime()
 {
   unsigned long elapsed = (millis() / 1000) - _lastUpdateSeconds;
   return _unixTime + elapsed;
+}
+
+String Clock::getHumanDate()
+{
+  const time_t rawtime = (const time_t)Clock::getUnixTime();
+  struct tm * dt;
+  char timestr[30];
+  char buffer [30];
+
+  dt = localtime(&rawtime);
+
+  String str;
+  if (dt->tm_hour < 10) str.concat('0');
+  str.concat(dt->tm_hour);
+  str.concat(':');
+  if (dt->tm_min < 10) str.concat('0');
+  str.concat(dt->tm_min);
+  str.concat(':');
+  if (dt->tm_sec < 10) str.concat('0');
+  str.concat(dt->tm_sec);
+
+  return str;
+}
+
+String Clock::getHumanTime()
+{
+  const time_t rawtime = (const time_t)Clock::getUnixTime();
+  struct tm * dt;
+  char timestr[30];
+  char buffer [30];
+
+  dt = localtime(&rawtime);
+
+  String str;
+  if (dt->tm_mday < 10) str.concat('0');
+  str.concat(dt->tm_mday);
+  str.concat('-');
+  if (dt->tm_mon < 10) str.concat('0');
+  str.concat(dt->tm_mon);
+  str.concat('-');
+  str.concat(dt->tm_year + 1900);
+
+  return str;
+}
+
+String Clock::getHumanDateTime()
+{
+  const time_t rawtime = (const time_t)Clock::getUnixTime();
+  struct tm * dt;
+  char timestr[30];
+  char buffer [30];
+
+  dt = localtime(&rawtime);
+
+  String str;
+  if (dt->tm_mday < 10) str.concat('0');
+  str.concat(dt->tm_mday);
+  str.concat('-');
+  if (dt->tm_mon < 10) str.concat('0');
+  str.concat(dt->tm_mon);
+  str.concat('-');
+  str.concat(dt->tm_year + 1900);
+  str.concat(' ');
+  if (dt->tm_hour < 10) str.concat('0');
+  str.concat(dt->tm_hour);
+  str.concat(':');
+  if (dt->tm_min < 10) str.concat('0');
+  str.concat(dt->tm_min);
+  str.concat(':');
+  if (dt->tm_sec < 10) str.concat('0');
+  str.concat(dt->tm_sec);
+
+  return str;
 }
