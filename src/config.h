@@ -32,6 +32,7 @@ public:
   static const int pricingUpdate_inerval = 5 * 60 * 1000; // 5m
   static const int time_ofset = 2 * 60 * 60; // 2h (GTM+2)
   static const String NTP_address;
+  static const String pricing_address;
 
   Config(String file);
   void readConfig();

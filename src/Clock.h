@@ -6,10 +6,11 @@ class Clock
 {
 public:
   static unsigned long getUnixTime();
-  static String getHumanTime();
-  static String getHumanDate();
-  static String getHumanDateTime();
-  static void updateTime();
+  static unsigned long getDayInSeconds();
+  static String getHumanTime(unsigned long unixTime);
+  static String getHumanDate(unsigned long unixTime);
+  static String getHumanDateTime(unsigned long unixTime);
+  static bool updateTime();
 
 protected:
   static unsigned long _unixTime;

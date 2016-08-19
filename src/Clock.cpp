@@ -9,7 +9,7 @@ extern Config* config;
 unsigned long Clock::_unixTime;
 unsigned long Clock::_lastUpdateSeconds;
 
-void Clock::updateTime()
+bool Clock::updateTime()
 {
   const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of the message
   byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming and outgoing packets
@@ -47,7 +47,7 @@ void Clock::updateTime()
   if (!cb)
   {
     Serial.println("WARNING: Unable to obtain updated time from NTP Server.");
-    return;
+    return false;
   }
 
   udp.read(packetBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
@@ -64,6 +64,8 @@ void Clock::updateTime()
   const unsigned long seventyYears = 2208988800UL;
   _unixTime = (secsSince1900 - seventyYears) + config->time_ofset;
   _lastUpdateSeconds = millis() / 1000;
+
+  return true;
 }
 
 unsigned long Clock::getUnixTime()
@@ -72,9 +74,15 @@ unsigned long Clock::getUnixTime()
   return _unixTime + elapsed;
 }
 
-String Clock::getHumanDate()
+// first second of today
+unsigned long Clock::getDayInSeconds()
 {
-  const time_t rawtime = (const time_t)Clock::getUnixTime();
+  return _unixTime - (_unixTime % 86400L);
+}
+
+String Clock::getHumanTime(unsigned long unixTime)
+{
+  const time_t rawtime = (const time_t)unixTime;
   struct tm * dt;
   char timestr[30];
   char buffer [30];
@@ -94,9 +102,9 @@ String Clock::getHumanDate()
   return str;
 }
 
-String Clock::getHumanTime()
+String Clock::getHumanDate(unsigned long unixTime)
 {
-  const time_t rawtime = (const time_t)Clock::getUnixTime();
+  const time_t rawtime = (const time_t)unixTime;
   struct tm * dt;
   char timestr[30];
   char buffer [30];
@@ -107,17 +115,17 @@ String Clock::getHumanTime()
   if (dt->tm_mday < 10) str.concat('0');
   str.concat(dt->tm_mday);
   str.concat('-');
-  if (dt->tm_mon < 10) str.concat('0');
-  str.concat(dt->tm_mon);
+  if (dt->tm_mon+1 < 10) str.concat('0');
+  str.concat(dt->tm_mon+1);
   str.concat('-');
   str.concat(dt->tm_year + 1900);
 
   return str;
 }
 
-String Clock::getHumanDateTime()
+String Clock::getHumanDateTime(unsigned long unixTime)
 {
-  const time_t rawtime = (const time_t)Clock::getUnixTime();
+  const time_t rawtime = (const time_t)unixTime;
   struct tm * dt;
   char timestr[30];
   char buffer [30];
@@ -128,8 +136,8 @@ String Clock::getHumanDateTime()
   if (dt->tm_mday < 10) str.concat('0');
   str.concat(dt->tm_mday);
   str.concat('-');
-  if (dt->tm_mon < 10) str.concat('0');
-  str.concat(dt->tm_mon);
+  if (dt->tm_mon+1 < 10) str.concat('0');
+  str.concat(dt->tm_mon+1);
   str.concat('-');
   str.concat(dt->tm_year + 1900);
   str.concat(' ');
