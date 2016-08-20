@@ -138,13 +138,13 @@ uint8_t min(uint32_t* array, uint8_t len)
 
 unsigned long Pricing::getBestTime(Schedule& schedule)
 {
-  if (schedule.endTime - schedule.duration < schedule.startTime)
+  if (schedule.startTime + schedule.interval < schedule.duration)
     return 0; // There is no enough time to run the schedule
 
   unsigned long today = Clock::getDayInSeconds();
   uint8_t interval = round(schedule.duration / 3600.0f);
   uint8_t start = round((schedule.startTime - today) / 3600.0f);
-  uint8_t end = round((schedule.endTime - today) / 3600.0f);
+  uint8_t end = round((schedule.startTime + schedule.interval - today) / 3600.0f);
 
   if (end - interval <= start)
     return schedule.startTime;
@@ -189,12 +189,12 @@ unsigned long Pricing::getBestTime(Schedule& schedule)
     return schedule.startTime;
   }
 
-  if ((designatedSecond + schedule.duration > schedule.endTime)
+  if ((designatedSecond + schedule.duration > schedule.startTime + schedule.interval)
     || (designatedHour + interval == end
-    && (schedule.endTime - Clock::getDayInSeconds()) / 3600.0f - float(end) > 0 // We have rounded down
+    && (schedule.startTime + schedule.interval - Clock::getDayInSeconds()) / 3600.0f - float(end) > 0 // We have rounded down
     && getPrice(today, end+1) < getPrice(today, start)))
   {
-    return schedule.endTime - schedule.duration;
+    return schedule.startTime + schedule.interval - schedule.duration;
   }
 
   return designatedSecond;

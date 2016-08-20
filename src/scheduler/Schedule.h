@@ -9,9 +9,9 @@ class Schedule : public Serializable<JsonObject&>
 {
 public:
   unsigned long startTime;
-  unsigned long endTime;
-  unsigned long duration;
-  unsigned long repeatEvery;
+  uint32_t interval;
+  uint32_t duration;
+  uint32_t repeatEvery;
 
   void toJson(JsonObject& json);
   void fromJson(JsonObject& json);
