@@ -2,7 +2,7 @@
 #include "FS.h"
 
 const String Config::NTP_address = "0.europe.pool.ntp.org";
-const String Config::pricing_address = "http://192.168.1.105:9000/";
+const String Config::pricing_address = "http://137.74.114.25:9000/";
 
 String readFieldString(String rawConfig, String field)
 {

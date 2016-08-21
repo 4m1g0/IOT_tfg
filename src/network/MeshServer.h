@@ -1,7 +1,7 @@
 #include "Arduino.h"
-#include <ESP8266WebServer.h>
+#include "ServerJson.h"
 
-class MeshServer : public ESP8266WebServer
+class MeshServer : public ServerJson
 {
 public:
   MeshServer(int port);

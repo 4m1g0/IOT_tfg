@@ -1,6 +1,6 @@
 #include "MeshServer.h"
 
-MeshServer::MeshServer(int port) : ESP8266WebServer(port){ }
+MeshServer::MeshServer(int port) : ServerJson(port){ }
 
 uint8_t MeshServer::status()
 {

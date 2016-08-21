@@ -14,5 +14,5 @@ public:
 
 protected:
   static unsigned long _unixTime;
-  static unsigned long _lastUpdateSeconds;
+  static unsigned long _lastUpdate;
 };

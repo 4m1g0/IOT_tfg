@@ -1,3 +1,5 @@
+#ifndef FUNCTIONS_H
+#define FUNCTIONS_H
 #include "Arduino.h"
 
 const char* const SSID_PREFIX = "ssid_prefix";
@@ -39,3 +41,4 @@ public:
   void saveConfig();
   String getRaw();
 };
+#endif

@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
+#include "ServerJson.h"
 #include <ArduinoJson.h>
 
-class RemoteServer : public ESP8266WebServer
+class RemoteServer : public ServerJson
 {
 public:
   RemoteServer(int port);
