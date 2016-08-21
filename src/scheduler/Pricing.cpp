@@ -40,7 +40,7 @@ bool Pricing::getTomorrowPrices(unsigned long date)
   for (int i = 0; i < 24; i++)
     _price[i+3] = json.get(i);
 
-  _lastUpdate = date+86400; // 86400s = 1 dia
+  lastUpdate = date+86400; // 86400s = 1 dia
   _date = tomorrow;
   return true;
 }
@@ -72,7 +72,7 @@ bool Pricing::getTodayPrices(unsigned long date)
   for (int i = 0; i < 24; i++)
     _price[i+3] = json.get<int>(i);
 
-  _lastUpdate = date;
+  lastUpdate = date;
   _date = date;
   return true;
 }
@@ -81,10 +81,10 @@ bool Pricing::update()
 {
   unsigned long today = Clock::getDayInSeconds();
 
-  if (_lastUpdate > today)
+  if (lastUpdate > today)
     return true; // we already have tomorrow prices (nothing to do)
 
-  if (_lastUpdate < today)
+  if (lastUpdate < today)
   {
     if (!getTodayPrices(today))
       return false;
@@ -101,7 +101,7 @@ bool Pricing::update()
 
 Pricing::Pricing()
 {
-  _lastUpdate = 0;
+  lastUpdate = 0;
   if (!update())
     Serial.println("Failed to get prices");
 }
@@ -110,16 +110,22 @@ uint32_t Pricing::getPrice(unsigned long day, uint8_t hour)
 {
   if (_date == day)
   {
-    return _price[hour+3];
+    // if we don't have data we use the same hour of the day before
+    // this is the only way to schedule in an interval e.g.: 20:00 to 08:00
+    // because at 20:00 we still don't have data of the next day and we can not
+    // wait because startTime is comming
+    return _price[(hour%24)+3];
   }
 
-  if (day < _date) // We already have data of the next day
+  if (day == _date-86400L) // We already have data of the next day
   {
-    if (hour < 20) // we don't have it anymore
+    if (hour < 20) // we allready have erased that hour
       return 0;
 
     return _price[hour - 20];
   }
+
+  return 0; // we don't have that data
 }
 
 uint8_t min(uint32_t* array, uint8_t len)
@@ -145,6 +151,9 @@ unsigned long Pricing::getBestTime(Schedule& schedule)
   uint8_t interval = round(schedule.duration / 3600.0f);
   uint8_t start = round((schedule.startTime - today) / 3600.0f);
   uint8_t end = round((schedule.startTime + schedule.interval - today) / 3600.0f);
+
+  if (!getPrice(today, start) || !getPrice(today, end))
+    return 0; // we don't have enough data
 
   if (end - interval <= start)
     return schedule.startTime;
@@ -189,10 +198,20 @@ unsigned long Pricing::getBestTime(Schedule& schedule)
     return schedule.startTime;
   }
 
+  #if DEBUG_PRICING
+  Serial.print("designatedSecond: ");
+  Serial.println(Clock::getHumanDateTime(designatedSecond));
+  Serial.print("start ");
+  Serial.println(start);
+  Serial.print("end: ");
+  Serial.println(end);
+  #endif
+
+
   if ((designatedSecond + schedule.duration > schedule.startTime + schedule.interval)
     || (designatedHour + interval == end
     && (schedule.startTime + schedule.interval - Clock::getDayInSeconds()) / 3600.0f - float(end) > 0 // We have rounded down
-    && getPrice(today, end+1) < getPrice(today, start)))
+    && getPrice(today, end) < getPrice(today, end-interval)))
   {
     return schedule.startTime + schedule.interval - schedule.duration;
   }

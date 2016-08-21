@@ -61,3 +61,15 @@ void NodeInfo::fromJson(JsonObject& json)
     schedules.push_back(schedule);
   }
 }
+
+void NodeInfo::on()
+{
+  status = NodeStatus::ON;
+  digitalWrite(D0, HIGH);
+}
+
+void NodeInfo::off()
+{
+  status = NodeStatus::OFF;
+  digitalWrite(D0, LOW);
+}

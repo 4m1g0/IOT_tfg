@@ -12,7 +12,10 @@ public:
   uint32_t interval;
   uint32_t duration;
   uint32_t repeatEvery;
+  unsigned long designatedTime;
+  unsigned long lastRun;
 
+  Schedule();
   void toJson(JsonObject& json);
   void fromJson(JsonObject& json);
 };

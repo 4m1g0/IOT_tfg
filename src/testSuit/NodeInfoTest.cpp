@@ -10,7 +10,7 @@ void NodeInfoTest::testNodeInfo()
 {
   Schedule schedule;
   schedule.duration = 123;
-  schedule.endTime = 456;
+  schedule.interval = 456;
   schedule.startTime = 67394;
   schedule.repeatEvery = 98765;
 

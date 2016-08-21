@@ -19,10 +19,11 @@ public:
   bool getTomorrowPrices(unsigned long date);
   bool getTodayPrices(unsigned long date);
 
+    unsigned long lastUpdate;
+
   // 0-3 prices of the day before
   // 4-27 prices of the next day
   // it is updated every day at ~20:00
   uint32_t _price[28];
-  unsigned long _lastUpdate;
   unsigned long _date;
 };
