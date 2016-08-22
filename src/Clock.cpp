@@ -71,6 +71,8 @@ bool Clock::updateTime()
   else // slave
   {
     _unixTime = Master::getTime();
+    if (!_unixTime)
+      return false;
   }
 
   _lastUpdate = millis();
@@ -82,7 +84,7 @@ unsigned long Clock::getUnixTime()
 {
   unsigned long millisecons = millis();
   unsigned long elapsed = millisecons - _lastUpdate;
-  _unixTime += elapsed;
+  _unixTime += elapsed/1000;
   _lastUpdate = millisecons;
   return _unixTime;
 }

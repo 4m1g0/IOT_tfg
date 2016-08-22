@@ -6,9 +6,12 @@
 unsigned long Master::getTime()
 {
   HTTPClient http;
-  String url(WiFi.gatewayIP());
-  url.concat("/clock");
-  if (!http.begin(url.c_str()))
+  String url("http://");
+  url.concat(WiFi.gatewayIP().toString());
+  url.concat(":7001/clock");
+
+  WiFi.mode(WIFI_STA);
+  if (!http.begin(url))
     return 0;
 
   int httpCode = http.GET();
@@ -17,11 +20,12 @@ unsigned long Master::getTime()
 
   String body = http.getString();
   http.end();
+  WiFi.mode(WIFI_AP_STA);
 
   DynamicJsonBuffer jsonBuffer;
   JsonObject& json = jsonBuffer.parseObject(body);
   if (!json.success())
     return 0;
-    
+
   return json.get<unsigned long>("t");
 }

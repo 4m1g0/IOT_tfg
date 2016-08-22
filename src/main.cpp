@@ -12,7 +12,7 @@
 #include "scheduler/Pricing.h"
 #include "network/RESTMethods.h"
 
-#define TESTSUIT true
+#define TESTSUIT false
 const char* CONFIG_PATH = "/global_config.conf";
 unsigned long lastNetworkUpdate = 0;
 unsigned long lastMeasure = 0;
@@ -54,19 +54,12 @@ void setup()
   updateNetwork();
   lastNetworkUpdate = millis();
 
-  if (isMaster())
+  while (!Clock::updateTime())
   {
-    while (!Clock::updateTime())
-    {
-      Serial.println("Unable to get time. Retrying...");
-      delay(20000);
-    }
-    lastTimeUpdate = millis();
+    Serial.println("Unable to get time. Retrying...");
+    delay(20000);
   }
-  else
-  {
-    // Ask master for time
-  }
+  lastTimeUpdate = millis();
 
   remoteServer.on("/", [](){ remoteServer.send(200, "text/html; charset=UTF-8", "It Works!"); });
   meshServer.on("/clock", [](){ RESTMethods::clock(meshServer); });
@@ -96,8 +89,8 @@ void setup()
   });*/
   /*configServer.on("/", [](){ handleConfig(&configServer); });
   meshServer.on("/", [](){ handleConfig(&meshServer); });
-  configServer.begin();
-  meshServer.begin();*/
+  configServer.begin();*/
+  meshServer.begin();
 }
 
 void loop()
@@ -108,6 +101,11 @@ void loop()
   Test::testAll();
   delay(10000);
 #endif
+//meshServer.handleClient();
+Serial.println(Clock::getHumanDateTime(Clock::getUnixTime()));
+delay(1000);
+
+
   /*Serial.print("HEap: ");
   Serial.println(ESP.getFreeHeap());
   if (!http.begin("http://192.168.1.105:9000/17-08-2016"))
