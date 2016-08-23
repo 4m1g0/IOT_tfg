@@ -8,6 +8,7 @@
 class Schedule : public Serializable<JsonObject&>
 {
 public:
+  uint8_t id;
   unsigned long startTime;
   uint32_t interval;
   uint32_t duration;

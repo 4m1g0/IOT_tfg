@@ -44,7 +44,7 @@ void Config::readConfig()
   mesh_password = readFieldString(rawConfig, MESH_PASSWORD);
   gateway_ssid = readFieldString(rawConfig, GATEWAY_SSID);
   gateway_password = readFieldString(rawConfig, GATEWAY_PASSWORD);
-  network_inerval = readFieldInt(rawConfig, NETWORK_INTERVAL);
+  network_interval = readFieldInt(rawConfig, NETWORK_INTERVAL);
   network_id = readFieldString(rawConfig, NETWORK_ID);
   type = readFieldInt(rawConfig, TYPE);
 }
@@ -65,7 +65,7 @@ void Config::saveConfig()
   file.println(String(MESH_PASSWORD) + "=" + mesh_password + ";");
   file.println(String(GATEWAY_SSID) + "=" + gateway_ssid + ";");
   file.println(String(GATEWAY_PASSWORD) + "=" + gateway_password + ";");
-  file.println(String(NETWORK_INTERVAL) + "=" + network_inerval + ";");
+  file.println(String(NETWORK_INTERVAL) + "=" + network_interval + ";");
   file.println(String(NETWORK_ID) + "=" + network_id + ";");
   file.println(String(TYPE) + "=" + type + ";");
   file.close();

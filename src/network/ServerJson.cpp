@@ -17,8 +17,6 @@ void ServerJson::sendJson(int code, JsonObject& json) {
       json.printTo(_currentClient);
       _currentClient.write(footer, 2);
     }
-
-    json.printTo(Serial);
 }
 
 void ServerJson::sendJson(int code, JsonArray& json) {

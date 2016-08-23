@@ -68,23 +68,22 @@ void setup()
   lastTimeUpdate = millis();
 
   remoteServer.on("/", [](){ remoteServer.send(200, "text/html; charset=UTF-8", "It Works!"); });
-  //remoteServer.on("/state", HTTP_PUT, [](){ RESTMethods::setState(remoteServer); });
+  remoteServer.on("/state", HTTP_PUT, [](){ RESTMethods::setState(remoteServer); });
   remoteServer.on("/schedules", HTTP_POST, [](){ RESTMethods::addSchedule(remoteServer); });
-  //remoteServer.on("/schedules", HTTP_PUT, [](){ RESTMethods::modSchedule(remoteServer); });
-  //remoteServer.on("/schedules", HTTP_DELETE, [](){ RESTMethods::deleteSchedule(remoteServer); });
+  remoteServer.on("/schedules", HTTP_PUT, [](){ RESTMethods::modSchedule(remoteServer); });
+  remoteServer.on("/schedules", HTTP_DELETE, [](){ RESTMethods::deleteSchedule(remoteServer); });
   remoteServer.on("/info", HTTP_GET, [](){ RESTMethods::getInfo(remoteServer); });
   remoteServer.on("/history", HTTP_GET, [](){ RESTMethods::getHistory(remoteServer); });
 
   meshServer.on("/", [](){ meshServer.send(200, "text/html; charset=UTF-8", "It Works!"); });
-  //meshServer.on("/schedules", HTTP_POST, [](){ RESTMethods::addSchedule(meshServer); });
-  //meshServer.on("/schedules", HTTP_PUT, [](){ RESTMethods::modSchedule(meshServer); });
-  //meshServer.on("/schedules", HTTP_DELETE, [](){ RESTMethods::deleteSchedule(meshServer); });
-  //meshServer.on("/state", HTTP_PUT, [](){ RESTMethods::setState(meshServer); });
+  meshServer.on("/schedules", HTTP_POST, [](){ RESTMethods::addSchedule(meshServer); });
+  meshServer.on("/schedules", HTTP_PUT, [](){ RESTMethods::modSchedule(meshServer); });
+  meshServer.on("/schedules", HTTP_DELETE, [](){ RESTMethods::deleteSchedule(meshServer); });
+  meshServer.on("/state", HTTP_PUT, [](){ RESTMethods::setState(meshServer); });
   meshServer.on("/clock", [](){ RESTMethods::clock(meshServer); });
   meshServer.on("/info", HTTP_GET, [](){ RESTMethods::getInfo(meshServer); });
   //meshServer.on("/schedule", HTTP_GET, [](){ RESTMethods::schedule(meshServer); });
-  //meshServer.on("/history", HTTP_GET, [](){ RESTMethods::getHistory(meshServer); });
-  meshServer.on("/info", HTTP_GET, [](){ RESTMethods::getInfo(meshServer); });
+  meshServer.on("/history", HTTP_GET, [](){ RESTMethods::getHistory(meshServer); });
 
   configServer.on("/", [](){ handleConfig(&configServer); });
 
@@ -97,34 +96,12 @@ void loop()
   //Serial.println((unsigned long) 0 - 4294967287UL); in memoriam
 
 #if TESTSUIT
-  Test::testAll();
-  delay(10000);
+  //Test::testAll();
+  //delay(10000);
 #endif
 //Serial.println(Clock::getHumanDateTime(Clock::getUnixTime()));
 //delay(1000);
 
-
-  /*Serial.print("HEap: ");
-  Serial.println(ESP.getFreeHeap());
-  if (!http.begin("http://192.168.1.105:9000/17-08-2016"))
-    Serial.println("ERROR");
-  Serial.println(ESP.getFreeHeap());
-  int httpCode = http.GET();
-  Serial.println(ESP.getFreeHeap());
-  if(httpCode > 0) {
-      Serial.printf("[HTTP] GET... code: %d\n", httpCode);
-      Serial.println(ESP.getFreeHeap());
-      // file found at server
-      if(httpCode == HTTP_CODE_OK) {
-          http.writeToStream(&Serial);
-      }
-  } else {
-      Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-  }
-
-  http.end();
-  delay(1000000);
-  */
   //Serial.println(Clock::getHumanTime());
   //Serial.println(Clock::getHumanDate());
   /*Serial.println(Clock::getHumanDateTime(Clock::getUnixTime()));
@@ -138,24 +115,21 @@ void loop()
   }
   delay(30000);*/
 
-
   // network update
-  if ((unsigned long)(millis() - lastNetworkUpdate) > config->network_inerval)
+  if ((unsigned long)(millis() - lastNetworkUpdate) > config->network_interval)
   {
-    Serial.println(config->network_inerval);
-    Serial.println(lastNetworkUpdate);
     updateNetwork();
     lastNetworkUpdate = millis();
     Serial.println("network");
   }
 
-  if ((unsigned long)(millis() - lastPrincingUpdate) > config->pricingUpdate_inerval)
+  if ((unsigned long)(millis() - lastPrincingUpdate) > config->pricingUpdate_interval)
   {
     // measure current and save it in the history
     lastPrincingUpdate = millis();
   }
 
-  if ((unsigned long)(millis() - lastMeasure) > config->measure_inerval)
+  if ((unsigned long)(millis() - lastMeasure) > config->measure_interval)
   {
     // measure current and save it in the history
     Serial.println("Measuring...");
@@ -165,14 +139,14 @@ void loop()
     lastMeasure = millis();
   }
 
-  if ((unsigned long)(millis() - lastTimeUpdate) > config->updatetime_inerval)
+  if ((unsigned long)(millis() - lastTimeUpdate) > config->updatetime_interval)
   {
     Serial.println("clock");
     Clock::updateTime();
     lastTimeUpdate = millis();
   }
 
-  if ((unsigned long)(millis() - lastSchedule) > config->schedule_inerval)
+  if ((unsigned long)(millis() - lastSchedule) > config->schedule_interval)
   {
     // power on and off depending on schedules
   }

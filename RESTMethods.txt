@@ -1,0 +1,26 @@
+
+
+PUT /state 1.2
+Content-Type: application/json
+Content-Length: 10
+
+{"s":true}
+
+
+POST /schedules 1.2
+Content-Type: application/json
+Content-Length: 31
+
+{"s":123,"i":800,"d":400,"r":0}
+
+PUT /schedules 1.2
+Content-Type: application/json
+Content-Length: 31
+
+{"id":0,"s":999,"i":999,"d":400,"r":0}
+
+DELETE /schedules 1.2
+Content-Type: application/json
+Content-Length: 8
+
+{"id":0}

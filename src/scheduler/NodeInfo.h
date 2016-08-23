@@ -10,7 +10,7 @@
 
 const int MAX_SCHEDULES = 3;
 
-enum NodeStatus { ON, OFF };
+enum NodeStatus { OFF = 0, ON };
 enum NodeType
 {
   SCHEDULABLE, // Can be started whenever is apropiate, but once is running it must keep on until finished
@@ -22,6 +22,7 @@ enum NodeType
 class NodeInfo : public Serializable<JsonObject&>
 {
 public:
+  //NodeInfo();
   NodeStatus status;
   NodeType type;
   History history;
@@ -35,6 +36,9 @@ public:
   void fromJson(JsonObject& json);
   void toJson(JsonObject& json); // doesn't return history
   void toJsonDetails(JsonObject& json); // do return history (memory expensive)
+  Schedule getSchedule(uint8_t id, bool& error);
+  bool modSchedule(Schedule schedule);
+  bool delSchedule(uint8_t id);
 protected:
 
 };

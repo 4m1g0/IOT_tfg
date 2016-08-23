@@ -7,10 +7,12 @@ Schedule::Schedule()
 , repeatEvery(0)
 , lastRun(0)
 , designatedTime(0)
+, id(0)
 { }
 
 void Schedule::toJson(JsonObject& json)
 {
+  json.set<uint8_t>("id", id);
   json.set<unsigned long>("s", startTime);
   json.set<uint32_t>("i", interval);
   json.set<uint32_t>("d", duration);
