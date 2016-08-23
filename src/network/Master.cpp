@@ -10,7 +10,7 @@ unsigned long Master::getTime()
   url.concat(WiFi.gatewayIP().toString());
   url.concat(":7001/clock");
 
-  WiFi.mode(WIFI_STA);
+  WiFi.mode(WIFI_STA); // disable AP to avoid IP colisions
   if (!http.begin(url))
     return 0;
 

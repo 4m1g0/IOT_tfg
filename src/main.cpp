@@ -26,7 +26,7 @@ NodeInfo* nodeInfo;
 
 ESP8266WebServer configServer(80); // Config server (web)
 MeshServer meshServer(7001);
-RemoteServer remoteServer(8000);
+RemoteServer remoteServer(8080);
 
 CurrentMeter currentMeter(A0);
 
@@ -47,6 +47,12 @@ void setup()
   config = new Config(CONFIG_PATH);
   nodeInfo = new NodeInfo();
 
+  /*Schedule scheduleTest;
+  scheduleTest.startTime = 123;
+  scheduleTest.duration = 400;
+  scheduleTest.interval = 800;
+  nodeInfo->addSchedule(scheduleTest);*/
+
   WiFi.mode(WIFI_AP_STA);
   Serial.println((config->ssid_prefix + String(ESP.getChipId())).c_str());
   WiFi.softAP((config->ssid_prefix + String(ESP.getChipId())).c_str(), "12345678");
@@ -62,34 +68,27 @@ void setup()
   lastTimeUpdate = millis();
 
   remoteServer.on("/", [](){ remoteServer.send(200, "text/html; charset=UTF-8", "It Works!"); });
+  //remoteServer.on("/state", HTTP_PUT, [](){ RESTMethods::setState(remoteServer); });
+  remoteServer.on("/schedules", HTTP_POST, [](){ RESTMethods::addSchedule(remoteServer); });
+  //remoteServer.on("/schedules", HTTP_PUT, [](){ RESTMethods::modSchedule(remoteServer); });
+  //remoteServer.on("/schedules", HTTP_DELETE, [](){ RESTMethods::deleteSchedule(remoteServer); });
+  remoteServer.on("/info", HTTP_GET, [](){ RESTMethods::getInfo(remoteServer); });
+  remoteServer.on("/history", HTTP_GET, [](){ RESTMethods::getHistory(remoteServer); });
+
+  meshServer.on("/", [](){ meshServer.send(200, "text/html; charset=UTF-8", "It Works!"); });
+  //meshServer.on("/schedules", HTTP_POST, [](){ RESTMethods::addSchedule(meshServer); });
+  //meshServer.on("/schedules", HTTP_PUT, [](){ RESTMethods::modSchedule(meshServer); });
+  //meshServer.on("/schedules", HTTP_DELETE, [](){ RESTMethods::deleteSchedule(meshServer); });
+  //meshServer.on("/state", HTTP_PUT, [](){ RESTMethods::setState(meshServer); });
   meshServer.on("/clock", [](){ RESTMethods::clock(meshServer); });
+  meshServer.on("/info", HTTP_GET, [](){ RESTMethods::getInfo(meshServer); });
+  //meshServer.on("/schedule", HTTP_GET, [](){ RESTMethods::schedule(meshServer); });
+  //meshServer.on("/history", HTTP_GET, [](){ RESTMethods::getHistory(meshServer); });
+  meshServer.on("/info", HTTP_GET, [](){ RESTMethods::getInfo(meshServer); });
 
-  /*remoteServer.on("/info", HTTP_GET, [](){
-    if (remoteServer.arg("id").compareTo(String(ESP.getChipId())) == 0)
-    {
-      // it's me
-      DynamicJsonBuffer jsonBuffer;
-      JsonObject& json = jsonBuffer.createObject();
-      nodeInfo->toJson(json);
-      remoteServer.sendJson(200, json);
-    }
-    else
-    {
-      // find ssid with id, connect, ask for the same and reply
-    }
+  configServer.on("/", [](){ handleConfig(&configServer); });
 
-
-
-  });
-  remoteServer.on("/info", HTTP_GET, [](){
-    DynamicJsonBuffer jsonBuffer;
-    JsonObject& json = jsonBuffer.createObject();
-    nodeInfo->toJson(json);
-    remoteServer.sendJson(200, json);
-  });*/
-  /*configServer.on("/", [](){ handleConfig(&configServer); });
-  meshServer.on("/", [](){ handleConfig(&meshServer); });
-  configServer.begin();*/
+  configServer.begin();
   meshServer.begin();
 }
 
@@ -101,9 +100,8 @@ void loop()
   Test::testAll();
   delay(10000);
 #endif
-//meshServer.handleClient();
-Serial.println(Clock::getHumanDateTime(Clock::getUnixTime()));
-delay(1000);
+//Serial.println(Clock::getHumanDateTime(Clock::getUnixTime()));
+//delay(1000);
 
 
   /*Serial.print("HEap: ");
@@ -141,7 +139,7 @@ delay(1000);
   delay(30000);*/
 
 
-  /*// network update
+  // network update
   if ((unsigned long)(millis() - lastNetworkUpdate) > config->network_inerval)
   {
     Serial.println(config->network_inerval);
@@ -154,11 +152,7 @@ delay(1000);
   if ((unsigned long)(millis() - lastPrincingUpdate) > config->pricingUpdate_inerval)
   {
     // measure current and save it in the history
-    Serial.println("Measuring...");
-    unsigned short current = currentMeter.measure();
-    Serial.print("Current: "); Serial.println(current);
-    nodeInfo->history.addValue(current);
-    lastMeasure = millis();
+    lastPrincingUpdate = millis();
   }
 
   if ((unsigned long)(millis() - lastMeasure) > config->measure_inerval)
@@ -211,5 +205,5 @@ delay(1000);
     // slave stuff
   }
 
-  meshServer.handleClient();*/
+  meshServer.handleClient();
 }
