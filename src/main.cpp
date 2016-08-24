@@ -11,6 +11,7 @@
 #include "scheduler/NodeInfo.h"
 #include "scheduler/Pricing.h"
 #include "network/RESTMethods.h"
+#include "scheduler/Scheduler.h"
 
 #define TESTSUIT false
 const char* CONFIG_PATH = "/global_config.conf";
@@ -23,6 +24,7 @@ const uint8_t ACT_PIN = D0;
 
 Config* config;
 NodeInfo* nodeInfo;
+Pricing* pricing;
 
 ESP8266WebServer configServer(80); // Config server (web)
 MeshServer meshServer(7001);
@@ -47,12 +49,6 @@ void setup()
   config = new Config(CONFIG_PATH);
   nodeInfo = new NodeInfo();
 
-  /*Schedule scheduleTest;
-  scheduleTest.startTime = 123;
-  scheduleTest.duration = 400;
-  scheduleTest.interval = 800;
-  nodeInfo->addSchedule(scheduleTest);*/
-
   WiFi.mode(WIFI_AP_STA);
   Serial.println((config->ssid_prefix + String(ESP.getChipId())).c_str());
   WiFi.softAP((config->ssid_prefix + String(ESP.getChipId())).c_str(), "12345678");
@@ -66,6 +62,9 @@ void setup()
     delay(20000);
   }
   lastTimeUpdate = millis();
+
+  if (isMaster())
+    pricing = new Pricing();
 
   remoteServer.on("/", [](){ remoteServer.send(200, "text/html; charset=UTF-8", "It Works!"); });
   remoteServer.on("/state", HTTP_PUT, [](){ RESTMethods::setState(remoteServer); });
@@ -82,7 +81,7 @@ void setup()
   meshServer.on("/state", HTTP_PUT, [](){ RESTMethods::setState(meshServer); });
   meshServer.on("/clock", [](){ RESTMethods::clock(meshServer); });
   meshServer.on("/info", HTTP_GET, [](){ RESTMethods::getInfo(meshServer); });
-  //meshServer.on("/schedule", HTTP_GET, [](){ RESTMethods::schedule(meshServer); });
+  meshServer.on("/schedule", HTTP_GET, [](){ RESTMethods::schedule(meshServer); });
   meshServer.on("/history", HTTP_GET, [](){ RESTMethods::getHistory(meshServer); });
 
   configServer.on("/", [](){ handleConfig(&configServer); });
@@ -93,27 +92,10 @@ void setup()
 
 void loop()
 {
-  //Serial.println((unsigned long) 0 - 4294967287UL); in memoriam
-
 #if TESTSUIT
-  //Test::testAll();
-  //delay(10000);
+  Test::testAll();
+  delay(10000);
 #endif
-//Serial.println(Clock::getHumanDateTime(Clock::getUnixTime()));
-//delay(1000);
-
-  //Serial.println(Clock::getHumanTime());
-  //Serial.println(Clock::getHumanDate());
-  /*Serial.println(Clock::getHumanDateTime(Clock::getUnixTime()));
-  Pricing pricing;
-  Serial.println(pricing._lastUpdate);
-  for (int i = 0; i< 27; i++)
-  {
-    Serial.print(i);
-    Serial.print("  ");
-    Serial.println(pricing.price[i]);
-  }
-  delay(30000);*/
 
   // network update
   if ((unsigned long)(millis() - lastNetworkUpdate) > config->network_interval)
@@ -123,9 +105,10 @@ void loop()
     Serial.println("network");
   }
 
-  if ((unsigned long)(millis() - lastPrincingUpdate) > config->pricingUpdate_interval)
+  if (isMaster() && (unsigned long)(millis() - lastPrincingUpdate) > config->pricingUpdate_interval)
   {
-    // measure current and save it in the history
+    Serial.println("Pricing update...");
+    pricing->update();
     lastPrincingUpdate = millis();
   }
 
@@ -149,8 +132,9 @@ void loop()
   if ((unsigned long)(millis() - lastSchedule) > config->schedule_interval)
   {
     // power on and off depending on schedules
+    Scheduler::schedule(*nodeInfo);
+    lastSchedule = millis();
   }
-
 
   // master and slave must listen for new config
   configServer.handleClient();
@@ -161,22 +145,10 @@ void loop()
       remoteServer.begin();
 
     remoteServer.handleClient();
-
-
-
-    //Serial.println(currentMeter.measure());
-    //digitalWrite(ACT_PIN, LOW);
-    //delay(2000);
-    //digitalWrite(ACT_PIN, HIGH);
-    //delay(2000);
-
   }
   else
   {
     remoteServer.stop(); // if closed does nothing
-
-
-    // slave stuff
   }
 
   meshServer.handleClient();

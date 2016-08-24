@@ -124,14 +124,14 @@ void NodeInfo::fromJson(JsonObject& json)
 
 void NodeInfo::on()
 {
-  Serial.println("poniendo on");
+  Serial.println("Set ON");
   status = NodeStatus::ON;
   digitalWrite(D0, HIGH);
 }
 
 void NodeInfo::off()
 {
-  Serial.println("poniendo off");
+  Serial.println("Set OFF");
   status = NodeStatus::OFF;
   digitalWrite(D0, LOW);
 }

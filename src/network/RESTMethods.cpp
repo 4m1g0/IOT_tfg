@@ -1,6 +1,7 @@
 #include "RESTMethods.h"
 #include <ArduinoJson.h>
 #include "../Clock.h"
+#include "../scheduler/Scheduler.h"
 
 void RESTMethods::clock(ServerJson& server)
 {
@@ -108,7 +109,7 @@ void RESTMethods::setState(ServerJson& server)
 
 void RESTMethods::modSchedule(ServerJson& server)
 {
-  Serial.println("RESTMethods::setState");
+  Serial.println("RESTMethods::modSchedule");
   if (!server.hasArg("id") || server.arg("id").compareTo(String(ESP.getChipId())) == 0)
   {
     if (!server.hasArg("plain"))
@@ -138,7 +139,7 @@ void RESTMethods::modSchedule(ServerJson& server)
 
 void RESTMethods::deleteSchedule(ServerJson& server)
 {
-  Serial.println("RESTMethods::setState");
+  Serial.println("RESTMethods::deleteSchedule");
   if (!server.hasArg("id") || server.arg("id").compareTo(String(ESP.getChipId())) == 0)
   {
     if (!server.hasArg("plain"))
@@ -162,4 +163,32 @@ void RESTMethods::deleteSchedule(ServerJson& server)
   {
     // ask other node
   }
+}
+
+void RESTMethods::schedule(ServerJson& server)
+{
+  Serial.println("RESTMethods::schedule");
+  if (!server.hasArg("plain"))
+  {
+    Serial.println("Error 400");
+    server.send(400);
+    return;
+  }
+
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject& json = jsonBuffer.parseObject(server.arg("plain"));
+
+  NodeInfo nodeInfo;
+  nodeInfo.fromJson(json);
+
+  if (!Scheduler::schedule(nodeInfo))
+  {
+    server.send(400);
+    return;
+  }
+
+  DynamicJsonBuffer jsonBuffer2;
+  JsonObject& json2 = jsonBuffer2.createObject();
+  nodeInfo.toJson(json2);
+  server.sendJson(200, json);
 }

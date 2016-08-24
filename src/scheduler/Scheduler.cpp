@@ -1,11 +1,18 @@
 #include "Scheduler.h"
 #include "Clock.h"
 #include "../functions.h"
+#include "../network/Master.h"
 
 #define DEBUG_SCHEDULER false
 
 bool Scheduler::updateSchedules(Pricing& pricing, NodeInfo& nodeInfo)
 {
+  if (!isMaster())
+  {
+    Master::schedule(&nodeInfo);
+    return true;
+  }
+  
   unsigned long now = Clock::getUnixTime();
   bool changed = false;
   for (auto &schedule : nodeInfo.schedules)

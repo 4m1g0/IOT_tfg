@@ -1,3 +1,5 @@
+#ifndef PRICING_H
+#define PRICING_H
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include "Schedule.h"
@@ -27,3 +29,4 @@ public:
   uint32_t _price[28];
   unsigned long _date;
 };
+#endif

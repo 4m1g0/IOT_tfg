@@ -14,6 +14,7 @@ public:
   static void setState(ServerJson& server);
   static void modSchedule(ServerJson& server);
   static void deleteSchedule(ServerJson& server);
+  static void schedule(ServerJson& server);
 private:
 
 };
