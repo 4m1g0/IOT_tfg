@@ -39,7 +39,7 @@ void Config::readConfig()
   String rawConfig = file.readString();
 
   ssid_prefix = readFieldString(rawConfig, SSID_PREFIX);
-  ree_url = readFieldString(rawConfig, REE_URL);
+  name = readFieldString(rawConfig, NAME);
   proxy_url = readFieldString(rawConfig, PROXY_URL);
   mesh_password = readFieldString(rawConfig, MESH_PASSWORD);
   gateway_ssid = readFieldString(rawConfig, GATEWAY_SSID);
@@ -60,7 +60,7 @@ void Config::saveConfig()
   }
 
   file.println(String(SSID_PREFIX) + "=" + ssid_prefix + ";");
-  file.println(String(REE_URL) + "=" + ree_url + ";");
+  file.println(String(NAME) + "=" + name + ";");
   file.println(String(PROXY_URL) + "=" + proxy_url + ";");
   file.println(String(MESH_PASSWORD) + "=" + mesh_password + ";");
   file.println(String(GATEWAY_SSID) + "=" + gateway_ssid + ";");

@@ -1,8 +1,12 @@
 #include <Arduino.h>
 #include "ServerJson.h"
 #include "../scheduler/NodeInfo.h"
+#include <map>
+#include "../config.h"
 
 extern NodeInfo* nodeInfo;
+extern std::map <String, std::pair <IPAddress,unsigned long>> nodeList;
+extern Config* config;
 
 class RESTMethods
 {
@@ -15,6 +19,8 @@ public:
   static void modSchedule(ServerJson& server);
   static void deleteSchedule(ServerJson& server);
   static void schedule(ServerJson& server);
+  static void heartbeat(ServerJson& server);
+  static void getNodes(ServerJson& server);
 private:
 
 };

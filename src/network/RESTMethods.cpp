@@ -192,3 +192,39 @@ void RESTMethods::schedule(ServerJson& server)
   nodeInfo.toJson(json2);
   server.sendJson(200, json);
 }
+
+void RESTMethods::heartbeat(ServerJson& server)
+{
+  Serial.println("RESTMethods::heartbeat");
+  if (!server.hasArg("plain"))
+  {
+    Serial.println("Error 400");
+    server.send(400);
+    return;
+  }
+
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject& json = jsonBuffer.parseObject(server.arg("plain"));
+  String name = json.get<String>("n");
+  nodeList[name].first = server.client().remoteIP();
+  nodeList[name].second = Clock::getUnixTime();
+  server.send(200);
+}
+
+void RESTMethods::getNodes(ServerJson& server)
+{
+  Serial.println("RESTMethods::getNodes");
+
+  DynamicJsonBuffer jsonBuffer;
+  JsonArray& json = jsonBuffer.createArray();
+  typedef std::map<String, std::pair <IPAddress,unsigned long>>::iterator it_type;
+  for(it_type iterator = nodeList.begin(); iterator != nodeList.end(); iterator++) {
+    if (iterator->second.second + config->heartbeat_interval * 2 < Clock::getUnixTime())
+    {
+      nodeList.erase(iterator);
+    }
+    else
+      json.add<String>(iterator->first);
+  }
+  server.sendJson(200, json);
+}

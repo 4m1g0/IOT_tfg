@@ -6,4 +6,5 @@ class Master
 public:
   static unsigned long getTime();
   static void schedule(NodeInfo* nodeInfo);
+  static void heartbeat(String name);
 };

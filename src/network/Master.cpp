@@ -71,3 +71,21 @@ void Master::schedule(NodeInfo* nodeInfo)
     nodeInfo->modSchedule(schedule);
   }
 }
+
+void Master::heartbeat(String name)
+{
+  ClientJson http;
+  String url("http://");
+  url.concat(WiFi.gatewayIP().toString());
+  url.concat(":7001/heartbeat");
+
+  WiFi.mode(WIFI_STA); // disable AP to avoid IP colisions
+  if (!http.begin(url))
+    return;
+
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject& json = jsonBuffer.createObject();
+  json.set<String>("n", name);
+
+  http.sendRequest("POST", json);
+}

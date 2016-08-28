@@ -12,6 +12,7 @@
 #include "scheduler/Pricing.h"
 #include "network/RESTMethods.h"
 #include "scheduler/Scheduler.h"
+#include <map>
 
 #define TESTSUIT false
 const char* CONFIG_PATH = "/global_config.conf";
@@ -25,6 +26,7 @@ const uint8_t ACT_PIN = D0;
 Config* config;
 NodeInfo* nodeInfo;
 Pricing* pricing;
+std::map <String, std::pair <IPAddress,unsigned long>> nodeList;
 
 ESP8266WebServer configServer(80); // Config server (web)
 MeshServer meshServer(7001);
@@ -73,6 +75,7 @@ void setup()
   remoteServer.on("/schedules", HTTP_DELETE, [](){ RESTMethods::deleteSchedule(remoteServer); });
   remoteServer.on("/info", HTTP_GET, [](){ RESTMethods::getInfo(remoteServer); });
   remoteServer.on("/history", HTTP_GET, [](){ RESTMethods::getHistory(remoteServer); });
+  remoteServer.on("/nodes", HTTP_GET, [](){ RESTMethods::getNodes(remoteServer); });
 
   meshServer.on("/", [](){ meshServer.send(200, "text/html; charset=UTF-8", "It Works!"); });
   meshServer.on("/schedules", HTTP_POST, [](){ RESTMethods::addSchedule(meshServer); });
@@ -83,6 +86,7 @@ void setup()
   meshServer.on("/info", HTTP_GET, [](){ RESTMethods::getInfo(meshServer); });
   meshServer.on("/schedule", HTTP_GET, [](){ RESTMethods::schedule(meshServer); });
   meshServer.on("/history", HTTP_GET, [](){ RESTMethods::getHistory(meshServer); });
+  meshServer.on("/heartbeat", HTTP_POST, [](){ RESTMethods::heartbeat(meshServer); });
 
   configServer.on("/", [](){ handleConfig(&configServer); });
 
@@ -96,7 +100,7 @@ void loop()
   Test::testAll();
   delay(10000);
 #endif
-
+  yield();
   // network update
   if ((unsigned long)(millis() - lastNetworkUpdate) > config->network_interval)
   {
