@@ -12,6 +12,7 @@
 #include "scheduler/Pricing.h"
 #include "network/RESTMethods.h"
 #include "scheduler/Scheduler.h"
+#include "network/Master.h"
 #include <map>
 
 #define TESTSUIT false
@@ -21,6 +22,7 @@ unsigned long lastMeasure = 0;
 unsigned long lastTimeUpdate = 0;
 unsigned long lastSchedule = 0;
 unsigned long lastPrincingUpdate = 0;
+unsigned long lastHeartbeat = 0;
 const uint8_t ACT_PIN = D0;
 
 Config* config;
@@ -96,10 +98,11 @@ void setup()
 
 void loop()
 {
-#if TESTSUIT
-  Test::testAll();
-  delay(10000);
-#endif
+  #if TESTSUIT
+    Test::testAll();
+    delay(10000);
+  #endif
+
   yield();
   // network update
   if ((unsigned long)(millis() - lastNetworkUpdate) > config->network_interval)
@@ -153,6 +156,15 @@ void loop()
   else
   {
     remoteServer.stop(); // if closed does nothing
+
+    // All slaves must keep master aware of their presence
+    if ((unsigned long)(millis() - lastHeartbeat) > config->heartbeat_interval)
+    {
+      // Heartbeat
+      Master::heartbeat(config->name);
+      lastHeartbeat = millis();
+      Serial.println("Heartbeat");
+    }
   }
 
   meshServer.handleClient();
