@@ -14,7 +14,7 @@ unsigned long Master::getTime()
   WiFi.mode(WIFI_STA); // disable AP to avoid IP colisions
   if (!http.begin(url))
     return 0;
-
+    
   int httpCode = http.GET();
   if(httpCode != HTTP_CODE_OK)
     return 0;

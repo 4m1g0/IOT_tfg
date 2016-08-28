@@ -2,6 +2,7 @@
 #include <ArduinoJson.h>
 #include "../Clock.h"
 #include "../scheduler/Scheduler.h"
+#include "Slave.h"
 
 void RESTMethods::clock(ServerJson& server)
 {
@@ -29,7 +30,14 @@ void RESTMethods::getInfo(ServerJson& server)
   }
   else
   {
-    // ask other node
+    if (nodeList.find(server.arg("id")) == nodeList.end() ) {
+      server.send(503); // unavailable
+      return;
+    }
+
+    IPAddress ip = nodeList[server.arg("id")].first;
+    Slave slave(ip, 7001);
+    slave.copyRequest(server);
   }
 }
 
@@ -45,7 +53,14 @@ void RESTMethods::getHistory(ServerJson& server)
   }
   else
   {
-    // ask other node
+    if (nodeList.find(server.arg("id")) == nodeList.end() ) {
+      server.send(503); // unavailable
+      return;
+    }
+
+    IPAddress ip = nodeList[server.arg("id")].first;
+    Slave slave(ip, 7001);
+    slave.copyRequest(server);
   }
 }
 
@@ -70,7 +85,14 @@ void RESTMethods::addSchedule(ServerJson& server)
   }
   else
   {
-    // ask other node
+    if (nodeList.find(server.arg("id")) == nodeList.end() ) {
+      server.send(503); // unavailable
+      return;
+    }
+
+    IPAddress ip = nodeList[server.arg("id")].first;
+    Slave slave(ip, 7001);
+    slave.copyRequest(server);
   }
 }
 
@@ -106,7 +128,14 @@ void RESTMethods::setState(ServerJson& server)
   }
   else
   {
-    // ask other node
+    if (nodeList.find(server.arg("id")) == nodeList.end() ) {
+      server.send(503); // unavailable
+      return;
+    }
+
+    IPAddress ip = nodeList[server.arg("id")].first;
+    Slave slave(ip, 7001);
+    slave.copyRequest(server);
   }
 }
 
@@ -136,7 +165,14 @@ void RESTMethods::modSchedule(ServerJson& server)
   }
   else
   {
-    // ask other node
+    if (nodeList.find(server.arg("id")) == nodeList.end() ) {
+      server.send(503); // unavailable
+      return;
+    }
+
+    IPAddress ip = nodeList[server.arg("id")].first;
+    Slave slave(ip, 7001);
+    slave.copyRequest(server);
   }
 }
 
@@ -164,7 +200,14 @@ void RESTMethods::deleteSchedule(ServerJson& server)
   }
   else
   {
-    // ask other node
+    if (nodeList.find(server.arg("id")) == nodeList.end() ) {
+      server.send(503); // unavailable
+      return;
+    }
+
+    IPAddress ip = nodeList[server.arg("id")].first;
+    Slave slave(ip, 7001);
+    slave.copyRequest(server);
   }
 }
 
