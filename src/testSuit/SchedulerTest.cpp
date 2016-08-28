@@ -59,15 +59,15 @@ void SchedulerTest::testScheduleNOW()
   Serial.print("designated: ");
   Serial.println(Clock::getHumanDateTime(nodeInfo.schedules.at(0).designatedTime));
 
-  nodeInfo.status = NodeStatus::OFF;
-  nodeInfo.type = NodeType::SCHEDULABLE;
+  nodeInfo.off();
+  nodeInfo.setType(NodeType::SCHEDULABLE);
 
   for (int i = 0; i < 4; i++)
   {
     Serial.print(i*10);
     Scheduler::schedule(nodeInfo);
     Serial.print(" ON?  ");
-    Serial.println(nodeInfo.status == NodeStatus::ON ? "ON" : "OFF");
+    Serial.println(nodeInfo.isOn() ? "ON" : "OFF");
     delay(10000);
   }
 

@@ -22,9 +22,9 @@ enum NodeType
 class NodeInfo : public Serializable<JsonObject&>
 {
 public:
-  //NodeInfo();
-  NodeStatus status;
-  NodeType type;
+  NodeInfo();
+  void load();
+  void save();
   History history;
   unsigned long lastRun;
   std::vector<Schedule> schedules;
@@ -39,7 +39,11 @@ public:
   Schedule getSchedule(uint8_t id, bool& error);
   bool modSchedule(Schedule schedule);
   bool delSchedule(uint8_t id);
+  void setType(NodeType type);
+  NodeType getType();
+  bool isOn();
 protected:
-
+  NodeStatus _status;
+  NodeType _type;
 };
 #endif

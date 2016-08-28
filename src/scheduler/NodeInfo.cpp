@@ -1,11 +1,43 @@
 #include "NodeInfo.h"
 #include "Schedule.h"
+#include "FS.h"
+#include "../config.h"
 
-/*NodeInfo::NodeInfo()
+extern Config* config;
+
+NodeInfo::NodeInfo()
 {
+  load();
+}
 
-  // load from FS
-}*/
+void NodeInfo::load()
+{
+  File file = SPIFFS.open(config->nodeInfoFile, "r");
+  if (!file)
+  {
+    Serial.println("Error while reading nodeInfo file. Creating new one...");
+    return;
+  }
+
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject& json = jsonBuffer.parseObject(file.readString());
+  fromJson(json);
+}
+
+void NodeInfo::save()
+{
+  File file = SPIFFS.open(config->nodeInfoFile, "w");
+  if (!file)
+  {
+    Serial.println("Error while writting nodeInfo file. Could not save...");
+    return;
+  }
+
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject& json = jsonBuffer.createObject();
+  toJson(json);
+  json.printTo(file);
+}
 
 int NodeInfo::addSchedule(Schedule schedule)
 {
@@ -28,6 +60,7 @@ int NodeInfo::addSchedule(Schedule schedule)
 
   schedule.id = id;
   schedules.push_back(schedule);
+  save();
   return schedules.size();
 }
 
@@ -42,6 +75,7 @@ bool NodeInfo::modSchedule(Schedule schedule)
       it->startTime = schedule.startTime;
       it->lastRun = schedule.lastRun;
       it->repeatEvery = schedule.repeatEvery;
+      save();
       return true;
     }
 
@@ -64,6 +98,7 @@ bool NodeInfo::delSchedule(uint8_t id)
     if (it->id == id)
     {
       schedules.erase(it);
+      save();
       return true;
     }
     return false;
@@ -72,8 +107,8 @@ bool NodeInfo::delSchedule(uint8_t id)
 // in the normal method we don't return the history, to save memory (see toJsonDetails)
 void NodeInfo::toJson(JsonObject& json)
 {
-  json.set<short>("s", status);
-  json.set<short>("t", type);
+  json.set<short>("s", _status);
+  json.set<short>("t", _type);
   json.set<unsigned long>("l", lastRun);
 
   JsonArray& arraySchedules = json.createNestedArray("sh");
@@ -89,8 +124,8 @@ void NodeInfo::toJson(JsonObject& json)
 // This methods includes the history, it is memory expensive, so most of the times is not needed
 void NodeInfo::toJsonDetails(JsonObject& json)
 {
-  json.set<short>("s", status);
-  json.set<short>("t", type);
+  json.set<short>("s", _status);
+  json.set<short>("t", _type);
   json.set<unsigned long>("l", lastRun);
 
   JsonArray& arrayHistory = json.createNestedArray("h");
@@ -107,8 +142,8 @@ void NodeInfo::toJsonDetails(JsonObject& json)
 
 void NodeInfo::fromJson(JsonObject& json)
 {
-  status = (NodeStatus) json.get<short>("s");
-  type = (NodeType) json.get<short>("t");
+  _status = (NodeStatus) json.get<short>("s");
+  _type = (NodeType) json.get<short>("t");
   lastRun = json.get<unsigned long>("l");
 
   JsonArray& array = json.get<JsonArray&>("sh");
@@ -125,13 +160,30 @@ void NodeInfo::fromJson(JsonObject& json)
 void NodeInfo::on()
 {
   Serial.println("Set ON");
-  status = NodeStatus::ON;
+  _status = NodeStatus::ON;
   digitalWrite(D0, HIGH);
+  save();
 }
 
 void NodeInfo::off()
 {
   Serial.println("Set OFF");
-  status = NodeStatus::OFF;
+  _status = NodeStatus::OFF;
   digitalWrite(D0, LOW);
+  save();
+}
+
+void NodeInfo::setType(NodeType type)
+{
+  _type = type;
+}
+
+NodeType NodeInfo::getType()
+{
+  return _type;
+}
+
+bool NodeInfo::isOn()
+{
+  return _status == NodeStatus::ON;
 }

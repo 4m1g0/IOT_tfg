@@ -36,6 +36,7 @@ public:
   static const int time_ofset = 2 * 60 * 60; // 2h (GTM+2)
   static const String NTP_address;
   static const String pricing_address;
+  static const String nodeInfoFile;
 
   Config(String file);
   void readConfig();

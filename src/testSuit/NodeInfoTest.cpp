@@ -24,9 +24,9 @@ void NodeInfoTest::testNodeInfo()
   nodeInfo.addSchedule(schedule);
   nodeInfo.addSchedule(schedule);
 
-  nodeInfo.status = OFF;
+  nodeInfo.off();
   nodeInfo.lastRun = 12333;
-  nodeInfo.type = SCHEDULABLE;
+  nodeInfo.setType(SCHEDULABLE);
 
   if (nodeInfo.addSchedule(schedule)) // max schedules per object
   {

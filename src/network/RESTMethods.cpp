@@ -88,6 +88,9 @@ void RESTMethods::setState(ServerJson& server)
 
     DynamicJsonBuffer jsonBuffer;
     JsonObject& json = jsonBuffer.parseObject(server.arg("plain"));
+    if (json.is<uint8_t>("t"))
+      nodeInfo->setType((NodeType)json.get<uint8_t>("t"));
+
     if (json.get<bool>("s"))
     {
       Serial.println("on");

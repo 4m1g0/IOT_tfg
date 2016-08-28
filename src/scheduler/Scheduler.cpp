@@ -12,7 +12,7 @@ bool Scheduler::updateSchedules(Pricing& pricing, NodeInfo& nodeInfo)
     Master::schedule(&nodeInfo);
     return true;
   }
-  
+
   unsigned long now = Clock::getUnixTime();
   bool changed = false;
   for (auto &schedule : nodeInfo.schedules)
@@ -57,18 +57,21 @@ bool Scheduler::updateSchedules(Pricing& pricing, NodeInfo& nodeInfo)
     }
   }
 
+  if (changed)
+    nodeInfo.save();
+
   return changed;
 }
 
 bool Scheduler::schedule(NodeInfo& nodeInfo)
 {
-  if (nodeInfo.type != NodeType::SCHEDULABLE)
+  if (nodeInfo.getType() != NodeType::SCHEDULABLE)
     return 0;
 
   unsigned long now = Clock::getUnixTime();
   bool turnOff = true;
 
-  if (nodeInfo.status == NodeStatus::ON)
+  if (nodeInfo.isOn())
   {
     for (auto &schedule : nodeInfo.schedules)
     {
@@ -78,7 +81,7 @@ bool Scheduler::schedule(NodeInfo& nodeInfo)
     }
   }
 
-  if (nodeInfo.status == NodeStatus::OFF || turnOff)
+  if (!nodeInfo.isOn() || turnOff)
   {
     for (auto &schedule : nodeInfo.schedules)
     {
