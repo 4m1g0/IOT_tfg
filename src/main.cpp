@@ -75,6 +75,7 @@ void setup()
   remoteServer.on("/schedules", HTTP_POST, [](){ RESTMethods::addSchedule(remoteServer); });
   remoteServer.on("/schedules", HTTP_PUT, [](){ RESTMethods::modSchedule(remoteServer); });
   remoteServer.on("/schedules", HTTP_DELETE, [](){ RESTMethods::deleteSchedule(remoteServer); });
+  remoteServer.on("/schedules", HTTP_GET, [](){ RESTMethods::getschedules(remoteServer); });
   remoteServer.on("/info", HTTP_GET, [](){ RESTMethods::getInfo(remoteServer); });
   remoteServer.on("/history", HTTP_GET, [](){ RESTMethods::getHistory(remoteServer); });
   remoteServer.on("/nodes", HTTP_GET, [](){ RESTMethods::getNodes(remoteServer); });

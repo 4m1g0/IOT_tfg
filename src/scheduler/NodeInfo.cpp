@@ -116,13 +116,14 @@ void NodeInfo::toJson(JsonObject& json)
   json.set<short>("s", _status);
   json.set<short>("t", _type);
   json.set<unsigned long>("l", lastRun);
+}
 
-  JsonArray& arraySchedules = json.createNestedArray("sh");
-
+void NodeInfo::toJsonSchedules(JsonArray& json)
+{
   int i = 0;
   for (std::vector<Schedule>::iterator it = schedules.begin(); it != schedules.end(); ++it)
   {
-    JsonObject& jsonObject = arraySchedules.createNestedObject();
+    JsonObject& jsonObject = json.createNestedObject();
     it->toJson(jsonObject);
   }
 }

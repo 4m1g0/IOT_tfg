@@ -36,6 +36,7 @@ public:
   void fromJson(JsonObject& json);
   void toJson(JsonObject& json); // doesn't return history
   void toJsonDetails(JsonObject& json); // do return history (memory expensive)
+  void toJsonSchedules(JsonArray& json);
   Schedule getSchedule(uint8_t id, bool& error);
   bool modSchedule(Schedule schedule);
   bool delSchedule(uint8_t id);

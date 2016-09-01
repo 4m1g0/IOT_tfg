@@ -41,6 +41,28 @@ void RESTMethods::getInfo(ServerJson& server)
   }
 }
 
+void RESTMethods::getschedules(ServerJson& server)
+{
+  if (!server.hasArg("id") || server.arg("id").compareTo(String(ESP.getChipId())) == 0)
+  {
+    DynamicJsonBuffer jsonBuffer;
+    JsonArray& json = jsonBuffer.createArray();
+    nodeInfo->toJsonSchedules(json);
+    server.sendJson(200, json);
+  }
+  else
+  {
+    if (nodeList.find(server.arg("id")) == nodeList.end() ) {
+      server.send(503); // unavailable
+      return;
+    }
+
+    IPAddress ip = nodeList[server.arg("id")].first;
+    Slave slave(ip, 7001);
+    slave.copyRequest(server);
+  }
+}
+
 void RESTMethods::getHistory(ServerJson& server)
 {
   Serial.println("RESTMethods::getHistory");

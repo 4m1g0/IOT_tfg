@@ -21,6 +21,7 @@ public:
   static void schedule(ServerJson& server);
   static void heartbeat(ServerJson& server);
   static void getNodes(ServerJson& server);
+  static void getschedules(ServerJson& server);
 private:
 
 };
