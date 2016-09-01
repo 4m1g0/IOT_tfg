@@ -7,7 +7,13 @@ extern Config* config;
 
 NodeInfo::NodeInfo()
 {
+  _status = NodeStatus::OFF;
+  _type = NodeType::SCHEDULABLE;
+  lastRun = 0;
+
   load();
+  if (_status == NodeStatus::ON)
+    on();
 }
 
 void NodeInfo::load()

@@ -28,7 +28,7 @@ public:
   int type;
 
   // const values
-  static const int measure_interval = 60 * 1000; // 1m
+  static const int measure_interval = 1 * 30 * 1000; // 1m
   static const int updatetime_interval = 10 * 60 * 60 * 1000; // 10h
   static const int schedule_interval = 2 * 60 * 1000; // 2m
   static const int pricingUpdate_interval = 5 * 60 * 1000; // 5m
