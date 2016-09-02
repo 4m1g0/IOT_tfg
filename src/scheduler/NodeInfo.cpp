@@ -41,7 +41,7 @@ void NodeInfo::save()
 
   DynamicJsonBuffer jsonBuffer;
   JsonObject& json = jsonBuffer.createObject();
-  toJson(json);
+  toJsonDetails(json);
   json.printTo(file);
 }
 
@@ -128,15 +128,11 @@ void NodeInfo::toJsonSchedules(JsonArray& json)
   }
 }
 
-// This methods includes the history, it is memory expensive, so most of the times is not needed
 void NodeInfo::toJsonDetails(JsonObject& json)
 {
   json.set<short>("s", _status);
   json.set<short>("t", _type);
   json.set<unsigned long>("l", lastRun);
-
-  JsonArray& arrayHistory = json.createNestedArray("h");
-  history.toJson(arrayHistory);
 
   JsonArray& arraySchedules = json.createNestedArray("sh");
 

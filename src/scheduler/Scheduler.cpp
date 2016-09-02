@@ -18,8 +18,9 @@ bool Scheduler::updateSchedules(Pricing& pricing, NodeInfo& nodeInfo)
   for (auto &schedule : nodeInfo.schedules)
   {
     // we already have a designated time or interval expired, so we can get next time
-    if ((schedule.designatedTime > schedule.startTime && schedule.designatedTime < schedule.startTime + schedule.interval)
-        || schedule.startTime + schedule.interval < now)
+    if (schedule.repeatEvery > 0
+        && ((schedule.designatedTime > schedule.startTime && schedule.designatedTime < schedule.startTime + schedule.interval)
+            || schedule.startTime + schedule.interval < now))
     {
       schedule.startTime += schedule.repeatEvery * ceil(float(now - schedule.interval - schedule.startTime) / float(schedule.repeatEvery));
       changed = true;

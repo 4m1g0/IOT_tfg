@@ -79,17 +79,20 @@ void setup()
   remoteServer.on("/info", HTTP_GET, [](){ RESTMethods::getInfo(remoteServer); });
   remoteServer.on("/history", HTTP_GET, [](){ RESTMethods::getHistory(remoteServer); });
   remoteServer.on("/nodes", HTTP_GET, [](){ RESTMethods::getNodes(remoteServer); });
+  remoteServer.onNotFound([](){ RESTMethods::deleteSchedule(remoteServer); });
 
   meshServer.on("/", [](){ meshServer.send(200, "text/html; charset=UTF-8", "It Works!"); });
   meshServer.on("/schedules", HTTP_POST, [](){ RESTMethods::addSchedule(meshServer); });
   meshServer.on("/schedules", HTTP_PUT, [](){ RESTMethods::modSchedule(meshServer); });
   meshServer.on("/schedules", HTTP_DELETE, [](){ RESTMethods::deleteSchedule(meshServer); });
+  meshServer.on("/schedules", HTTP_GET, [](){ RESTMethods::getschedules(meshServer); });
   meshServer.on("/state", HTTP_PUT, [](){ RESTMethods::setState(meshServer); });
   meshServer.on("/clock", [](){ RESTMethods::clock(meshServer); });
   meshServer.on("/info", HTTP_GET, [](){ RESTMethods::getInfo(meshServer); });
   meshServer.on("/schedule", HTTP_GET, [](){ RESTMethods::schedule(meshServer); });
   meshServer.on("/history", HTTP_GET, [](){ RESTMethods::getHistory(meshServer); });
   meshServer.on("/heartbeat", HTTP_POST, [](){ RESTMethods::heartbeat(meshServer); });
+  meshServer.onNotFound([](){ RESTMethods::deleteSchedule(meshServer); });
 
   configServer.on("/", [](){ handleConfig(&configServer); });
 

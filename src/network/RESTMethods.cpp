@@ -205,6 +205,25 @@ void RESTMethods::deleteSchedule(ServerJson& server)
   {
     if (!server.hasArg("plain"))
     {
+      // does it come in the url? DELETE /schedules/1
+      if (server.uri().startsWith("/schedules/"))
+      {
+
+        String id = server.uri().substring(11);
+
+        Serial.println(server.uri());
+        Serial.println(id);
+
+        if (!nodeInfo->delSchedule(atoi(id.c_str())))
+        {
+          server.send(404);
+          return;
+        }
+
+        server.send(200);
+        return;
+      }
+
       Serial.println("Error 400");
       server.send(400);
       return;

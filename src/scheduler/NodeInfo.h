@@ -34,8 +34,8 @@ public:
 
   int addSchedule(Schedule schedule);
   void fromJson(JsonObject& json);
-  void toJson(JsonObject& json); // doesn't return history
-  void toJsonDetails(JsonObject& json); // do return history (memory expensive)
+  void toJson(JsonObject& json); 
+  void toJsonDetails(JsonObject& json);
   void toJsonSchedules(JsonArray& json);
   Schedule getSchedule(uint8_t id, bool& error);
   bool modSchedule(Schedule schedule);
