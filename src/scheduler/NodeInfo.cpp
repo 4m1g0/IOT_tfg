@@ -84,7 +84,6 @@ bool NodeInfo::modSchedule(Schedule schedule)
       save();
       return true;
     }
-
   return false;
 }
 

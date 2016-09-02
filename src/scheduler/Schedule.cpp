@@ -21,6 +21,7 @@ void Schedule::toJson(JsonObject& json)
 
 void Schedule::fromJson(JsonObject& json)
 {
+  id = json.get<uint8_t>("id");
   startTime = json.get<unsigned long>("s");
   interval = json.get<uint32_t>("i");
   duration = json.get<uint32_t>("d");

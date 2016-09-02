@@ -208,11 +208,7 @@ void RESTMethods::deleteSchedule(ServerJson& server)
       // does it come in the url? DELETE /schedules/1
       if (server.uri().startsWith("/schedules/"))
       {
-
         String id = server.uri().substring(11);
-
-        Serial.println(server.uri());
-        Serial.println(id);
 
         if (!nodeInfo->delSchedule(atoi(id.c_str())))
         {
