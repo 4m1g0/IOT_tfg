@@ -102,8 +102,16 @@ void RESTMethods::addSchedule(ServerJson& server)
     JsonObject& json = jsonBuffer.parseObject(server.arg("plain"));
     Schedule schedule;
     schedule.fromJson(json);
-    nodeInfo->addSchedule(schedule);
-    server.send(201);
+    int id = nodeInfo->addSchedule(schedule);
+    if (id < 0)
+    {
+      server.send(500);
+      return;
+    }
+    String body = "{\"id\":";
+    body.concat(id);
+    body.concat("}");
+    server.send(201, "application/json", body);
   }
   else
   {

@@ -48,7 +48,7 @@ void NodeInfo::save()
 int NodeInfo::addSchedule(Schedule schedule)
 {
   if (schedules.size() >= MAX_SCHEDULES)
-    return 0;
+    return -1;
 
   uint8_t id = 0;
   while (true)
@@ -59,7 +59,7 @@ int NodeInfo::addSchedule(Schedule schedule)
       break;
 
     if (id >= 254)
-      return 0;
+      return -1;
 
     id++;
   }
@@ -67,7 +67,7 @@ int NodeInfo::addSchedule(Schedule schedule)
   schedule.id = id;
   schedules.push_back(schedule);
   save();
-  return schedules.size();
+  return id;
 }
 
 bool NodeInfo::modSchedule(Schedule schedule)
