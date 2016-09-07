@@ -3,12 +3,13 @@
 #include "../scheduler/NodeInfo.h"
 #include <map>
 #include "../config.h"
+#include "RestHandler.h"
 
 extern NodeInfo* nodeInfo;
 extern std::map <String, std::pair <IPAddress,unsigned long>> nodeList;
 extern Config* config;
 
-class RESTMethods
+class RESTMethods : protected RestHandler
 {
 public:
   static void clock(ServerJson& server);

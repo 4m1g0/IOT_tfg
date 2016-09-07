@@ -13,11 +13,17 @@ unsigned long Master::getTime()
 
   WiFi.mode(WIFI_STA); // disable AP to avoid IP colisions
   if (!http.begin(url))
+  {
+    WiFi.mode(WIFI_AP_STA);
     return 0;
-    
+  }
+
   int httpCode = http.GET();
   if(httpCode != HTTP_CODE_OK)
+  {
+    WiFi.mode(WIFI_AP_STA);
     return 0;
+  }
 
   String body = http.getString();
   http.end();
@@ -40,7 +46,10 @@ void Master::schedule(NodeInfo* nodeInfo)
 
   WiFi.mode(WIFI_STA); // disable AP to avoid IP colisions
   if (!http.begin(url))
+  {
+    WiFi.mode(WIFI_AP_STA);
     return;
+  }
 
   DynamicJsonBuffer jsonBuffer;
   JsonObject& json = jsonBuffer.createObject();
@@ -48,7 +57,10 @@ void Master::schedule(NodeInfo* nodeInfo)
 
   int httpCode = http.sendRequest("GET", json);
   if(httpCode != HTTP_CODE_OK)
+  {
+    WiFi.mode(WIFI_AP_STA);
     return;
+  }
 
   String* body = new String(http.getString());
   http.end();
@@ -81,11 +93,16 @@ void Master::heartbeat(String name)
 
   WiFi.mode(WIFI_STA); // disable AP to avoid IP colisions
   if (!http.begin(url))
+  {
+    WiFi.mode(WIFI_AP_STA);
     return;
+  }
 
   DynamicJsonBuffer jsonBuffer;
   JsonObject& json = jsonBuffer.createObject();
   json.set<String>("n", name);
 
   http.sendRequest("POST", json);
+  
+  WiFi.mode(WIFI_AP_STA);
 }
