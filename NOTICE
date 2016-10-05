@@ -1,0 +1,3 @@
+List of dependencies
+	(LGPL 2.1 License) ArduinoESP.  https://github.com/esp8266/Arduino
+	(MIT License) Arduino JSON. https://github.com/bblanchon/ArduinoJson
