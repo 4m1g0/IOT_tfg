@@ -22,7 +22,7 @@ unsigned short CurrentMeter::measure()
     }
   }
 
-  float measure = (float) sqrt((float)currentAcc/(float)numSamples) * (50 / 1024.0);
+  float measure = (float) sqrt((float)currentAcc/(float)numSamples) * (40 / 1024.0);
   //Serial.println(analogRead(_pin));
   //Serial.print("float: ");
   //Serial.println((measure * 100.0f));

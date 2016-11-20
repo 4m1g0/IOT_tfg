@@ -60,10 +60,11 @@ void setup()
   updateNetwork();
   lastNetworkUpdate = millis();
 
-  while (!Clock::updateTime())
+  int i = 0;
+  while (!Clock::updateTime() && i++ < 3)
   {
-    Serial.println("Unable to get time. Retrying...");
-    delay(20000);
+    Serial.println("Unable to get time. ");
+    delay(5000);
   }
   lastTimeUpdate = millis();
 
@@ -140,9 +141,11 @@ void loop()
     lastTimeUpdate = millis();
   }
 
+
   if ((unsigned long)(millis() - lastSchedule) > config->schedule_interval)
   {
     // power on and off depending on schedules
+    Scheduler::updateSchedules(*pricing, *nodeInfo);
     Scheduler::schedule(*nodeInfo);
     lastSchedule = millis();
   }
