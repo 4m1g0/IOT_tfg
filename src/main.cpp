@@ -32,6 +32,7 @@
 #include "network/RESTMethods.h"
 #include "scheduler/Scheduler.h"
 #include "network/Master.h"
+#include <ESP8266httpUpdate.h>
 #include <map>
 
 #define TESTSUIT false
@@ -41,6 +42,7 @@ unsigned long lastMeasure = 0;
 unsigned long lastTimeUpdate = 0;
 unsigned long lastSchedule = 0;
 unsigned long lastPrincingUpdate = 0;
+unsigned long lastFirmwareUpdate = 0;
 unsigned long lastHeartbeat = 0;
 const uint8_t ACT_PIN = D0;
 
@@ -167,6 +169,26 @@ void loop()
     Scheduler::updateSchedules(*pricing, *nodeInfo);
     Scheduler::schedule(*nodeInfo);
     lastSchedule = millis();
+  }
+
+  if ((unsigned long)(millis() - lastFirmwareUpdate) > config->firmwareUpdate_interval)
+  {
+    Serial.println("Searching for firmware updates");
+    t_httpUpdate_return ret = ESPhttpUpdate.update("https://4m1g0.com/update1.bin", "1", "FB 45 62 97 8D 0F 85 E1 5A E9 DB 87 70 35 E4 D1 04 75 87 6E");
+
+    switch(ret) {
+        case HTTP_UPDATE_FAILED:
+            Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+            break;
+
+        case HTTP_UPDATE_NO_UPDATES:
+            Serial.println("HTTP_UPDATE_NO_UPDATES");
+            break;
+
+        case HTTP_UPDATE_OK:
+            Serial.println("HTTP_UPDATE_OK");
+            break;
+    }
   }
 
   // master and slave must listen for new config
