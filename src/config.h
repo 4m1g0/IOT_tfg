@@ -47,12 +47,12 @@ public:
   int type;
 
   // const values
-  static const int measure_interval = 1 * 30 * 1000; // 1m
+  static const int measure_interval = 1 * 60 * 1000; // 1m
   static const int updatetime_interval = 10 * 60 * 60 * 1000; // 10h
   static const int schedule_interval = 2 * 60 * 1000; // 2m
   static const int pricingUpdate_interval = 5 * 60 * 1000; // 5m
   static const int heartbeat_interval = 1 * 60; //1m
-  static const int firmwareUpdate_interval = 15 * 60; // 15m
+  static const int firmwareUpdate_interval = 1 * 30 * 1000; // 15m
   static const int time_ofset = 2 * 60 * 60; // 2h (GTM+2)
   static const String NTP_address;
   static const String pricing_address;

@@ -44,7 +44,7 @@ unsigned long lastSchedule = 0;
 unsigned long lastPrincingUpdate = 0;
 unsigned long lastFirmwareUpdate = 0;
 unsigned long lastHeartbeat = 0;
-const uint8_t ACT_PIN = D0;
+const uint8_t ACT_PIN = D5;
 
 Config* config;
 NodeInfo* nodeInfo;
@@ -59,8 +59,8 @@ CurrentMeter currentMeter(A0);
 
 void setup()
 {
-  pinMode(ACT_PIN, OUTPUT);
-  digitalWrite(ACT_PIN, LOW);
+  pinMode(ACT_PIN, OUTPUT_OPEN_DRAIN);
+  digitalWrite(ACT_PIN, HIGH);
   Serial.begin(9600);
   Serial.println("");
   delay(10000);
@@ -138,12 +138,13 @@ void loop()
     Serial.println("network");
   }
 
-  if (isMaster() && (unsigned long)(millis() - lastPrincingUpdate) > config->pricingUpdate_interval)
-  {
-    Serial.println("Pricing update...");
-    pricing->update();
-    lastPrincingUpdate = millis();
-  }
+  if (WiFi.status() == WL_CONNECTED)
+    if (isMaster() && (unsigned long)(millis() - lastPrincingUpdate) > config->pricingUpdate_interval)
+    {
+      Serial.println("Pricing update...");
+      pricing->update();
+      lastPrincingUpdate = millis();
+    }
 
   if ((unsigned long)(millis() - lastMeasure) > config->measure_interval)
   {
@@ -155,65 +156,70 @@ void loop()
     lastMeasure = millis();
   }
 
-  if ((unsigned long)(millis() - lastTimeUpdate) > config->updatetime_interval)
-  {
-    Serial.println("clock");
-    Clock::updateTime();
-    lastTimeUpdate = millis();
-  }
+  if (WiFi.status() == WL_CONNECTED)
+    if ((unsigned long)(millis() - lastTimeUpdate) > config->updatetime_interval)
+    {
+      Serial.println("clock");
+      Clock::updateTime();
+      lastTimeUpdate = millis();
+    }
 
 
   if ((unsigned long)(millis() - lastSchedule) > config->schedule_interval)
   {
     // power on and off depending on schedules
+    Serial.println("schedule");
     Scheduler::updateSchedules(*pricing, *nodeInfo);
     Scheduler::schedule(*nodeInfo);
     lastSchedule = millis();
   }
 
-  if ((unsigned long)(millis() - lastFirmwareUpdate) > config->firmwareUpdate_interval)
-  {
-    Serial.println("Searching for firmware updates");
-    t_httpUpdate_return ret = ESPhttpUpdate.update("https://4m1g0.com/update1.bin", "1", "FB 45 62 97 8D 0F 85 E1 5A E9 DB 87 70 35 E4 D1 04 75 87 6E");
+  if (WiFi.status() == WL_CONNECTED)
+    if ((unsigned long)(millis() - lastFirmwareUpdate) > config->firmwareUpdate_interval)
+    {
+      lastFirmwareUpdate = millis();
+      Serial.println("Searching for firmware updates");
+      t_httpUpdate_return ret = ESPhttpUpdate.update("https://4m1g0.com/update.php", "1", "FB 45 62 97 8D 0F 85 E1 5A E9 DB 87 70 35 E4 D1 04 75 87 6E");
 
-    switch(ret) {
-        case HTTP_UPDATE_FAILED:
-            Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
-            break;
+      switch(ret) {
+          case HTTP_UPDATE_FAILED:
+              Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+              break;
 
-        case HTTP_UPDATE_NO_UPDATES:
-            Serial.println("HTTP_UPDATE_NO_UPDATES");
-            break;
+          case HTTP_UPDATE_NO_UPDATES:
+              Serial.println("HTTP_UPDATE_NO_UPDATES");
+              break;
 
-        case HTTP_UPDATE_OK:
-            Serial.println("HTTP_UPDATE_OK");
-            break;
+          case HTTP_UPDATE_OK:
+              Serial.println("HTTP_UPDATE_OK");
+              break;
+      }
     }
-  }
 
   // master and slave must listen for new config
   configServer.handleClient();
 
-  if (isMaster())
-  {
-    if (remoteServer.status() == CLOSED)
-      remoteServer.begin();
-
-    remoteServer.handleClient();
-  }
-  else
-  {
-    remoteServer.stop(); // if closed does nothing
-
-    // All slaves must keep master aware of their presence
-    if ((unsigned long)(millis() - lastHeartbeat) > config->heartbeat_interval)
+  if (WiFi.status() == WL_CONNECTED)
+    if (isMaster())
     {
-      // Heartbeat
-      Master::heartbeat(config->name);
-      lastHeartbeat = millis();
-      Serial.println("Heartbeat");
+      if (remoteServer.status() == CLOSED)
+        remoteServer.begin();
+
+      remoteServer.handleClient();
     }
-  }
+    else
+    {
+      remoteServer.stop(); // if closed does nothing
+
+      // All slaves must keep master aware of their presence
+      if ((unsigned long)(millis() - lastHeartbeat) > config->heartbeat_interval)
+      {
+        // Heartbeat
+        Master::heartbeat(config->name);
+        lastHeartbeat = millis();
+        Serial.println("Heartbeat");
+      }
+    }
 
   meshServer.handleClient();
 }

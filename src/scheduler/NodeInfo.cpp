@@ -182,7 +182,7 @@ void NodeInfo::on()
 {
   Serial.println("Set ON");
   _status = NodeStatus::ON;
-  digitalWrite(D0, HIGH);
+  digitalWrite(D5, LOW);
   save();
 }
 
@@ -190,7 +190,7 @@ void NodeInfo::off()
 {
   Serial.println("Set OFF");
   _status = NodeStatus::OFF;
-  digitalWrite(D0, LOW);
+  digitalWrite(D5, HIGH);
   save();
 }
 

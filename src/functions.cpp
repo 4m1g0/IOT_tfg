@@ -16,7 +16,7 @@
  License along with this library; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
- 
+
 #include "functions.h"
 #include "Arduino.h"
 #include <ESP8266WiFi.h>
@@ -126,6 +126,9 @@ void handleConfig(ESP8266WebServer* server) {
   bool modified = false;
 
   for (uint8_t i=0; i<server->args(); i++){
+    if (server->arg(i).length() == 0)
+      continue;
+
     if (server->argName(i) == "ssid")
     {
       config->gateway_ssid = server->arg(i);
@@ -161,6 +164,7 @@ void handleConfig(ESP8266WebServer* server) {
   else
   {
     config->saveConfig();
+    updateNetwork();
     server->send(200, "text/html; charset=UTF-8", "<html><head><title>Configuration</title></head><body><div style=\"font-weight:bolder;font-size:2em;margin:40px auto;width:20px;\">OK</div></body></html>");
   }
 }

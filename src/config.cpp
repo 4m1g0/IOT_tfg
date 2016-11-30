@@ -21,7 +21,7 @@
 #include "FS.h"
 
 const String Config::NTP_address = "0.europe.pool.ntp.org";
-const String Config::pricing_address = "";
+const String Config::pricing_address = "http://aalborgiot.4m1g0.com:9000/";
 const String Config::nodeInfoFile = "nodeInfo.json";
 
 String readFieldString(String rawConfig, String field)
