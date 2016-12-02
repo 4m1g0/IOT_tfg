@@ -46,7 +46,7 @@ public:
   void addValue(unsigned short value);
 
 protected:
-  static const int N = 31;
+  static const short N = 31;
   unsigned short _records[N];
   int _last;
   int _next(int n);

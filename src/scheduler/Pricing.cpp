@@ -57,7 +57,8 @@ bool Pricing::getTomorrowPrices(unsigned long date)
 
   // 4-27 are the actual prices we are saving
   for (int i = 0; i < 24; i++)
-    _price[i+3] = json.get(i);
+    _price[i+3] = (uint8_t)(json.get<uint32_t>(i)/100);
+
 
   lastUpdate = date+86400; // 86400s = 1 dia
   _date = tomorrow;
@@ -89,7 +90,10 @@ bool Pricing::getTodayPrices(unsigned long date)
   // 4-27 are the actual prices we are saving
   // 0-3 are prices of the day before
   for (int i = 0; i < 24; i++)
-    _price[i+3] = json.get<int>(i);
+  {
+    _price[i+3] = (uint8_t)(json.get<uint32_t>(i)/100);
+    Serial.println(_price[i+3]);
+  }
 
   lastUpdate = date;
   _date = date;
@@ -125,7 +129,7 @@ Pricing::Pricing()
     Serial.println("Failed to get prices");
 }
 
-uint32_t Pricing::getPrice(unsigned long day, uint8_t hour)
+uint8_t Pricing::getPrice(unsigned long day, uint8_t hour)
 {
   if (_date == day)
   {
