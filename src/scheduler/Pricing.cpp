@@ -90,10 +90,7 @@ bool Pricing::getTodayPrices(unsigned long date)
   // 4-27 are the actual prices we are saving
   // 0-3 are prices of the day before
   for (int i = 0; i < 24; i++)
-  {
     _price[i+3] = (uint8_t)(json.get<uint32_t>(i)/100);
-    Serial.println(_price[i+3]);
-  }
 
   lastUpdate = date;
   _date = date;
