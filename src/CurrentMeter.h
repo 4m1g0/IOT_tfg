@@ -22,7 +22,7 @@
 const unsigned long sampleTime = 100000UL;
 const unsigned long numSamples = 250UL;
 const unsigned long sampleInterval = sampleTime/numSamples;
-const int adc_zero = 768;
+const int adc_zero = 773;
 
 class CurrentMeter
 {

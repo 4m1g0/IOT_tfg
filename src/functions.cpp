@@ -52,6 +52,7 @@ String searchForMaster()
 
 bool isMaster()
 {
+  return true;
   return WiFi.status() == WL_CONNECTED && WiFi.SSID().compareTo(config->gateway_ssid) == 0;
 }
 
@@ -70,6 +71,7 @@ void updateNetwork()
     return;
   }
 
+  WiFi.mode(WIFI_AP_STA);
   bool iamMaster = MasterSSID.length() <= 0;
   if (!iamMaster)
   {
@@ -94,6 +96,7 @@ void updateNetwork()
     if (i++ > 20) // 10s unable to connect
     {
       Serial.println("Unable to connect to any network, trying later...");
+      WiFi.mode(WIFI_AP);
       return;
     }
   }
@@ -123,6 +126,7 @@ void poolAllSlaves()
 }
 
 void handleConfig(ESP8266WebServer* server) {
+  Serial.println("Config endpoint.");
   bool modified = false;
 
   for (uint8_t i=0; i<server->args(); i++){
@@ -164,7 +168,7 @@ void handleConfig(ESP8266WebServer* server) {
   else
   {
     config->saveConfig();
-    updateNetwork();
     server->send(200, "text/html; charset=UTF-8", "<html><head><title>Configuration</title></head><body><div style=\"font-weight:bolder;font-size:2em;margin:40px auto;width:20px;\">OK</div></body></html>");
+    updateNetwork();
   }
 }

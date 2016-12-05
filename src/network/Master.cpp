@@ -25,7 +25,7 @@
 
 unsigned long Master::getTime()
 {
-  HTTPClient http;
+  /*HTTPClient http;
   String url("http://");
   url.concat(WiFi.gatewayIP().toString());
   url.concat(":7001/clock");
@@ -53,12 +53,12 @@ unsigned long Master::getTime()
   if (!json.success())
     return 0;
 
-  return json.get<unsigned long>("t");
+  return json.get<unsigned long>("t");*/
 }
 
 void Master::schedule(NodeInfo* nodeInfo)
 {
-  ClientJson http;
+  /*ClientJson http;
   String url("http://");
   url.concat(WiFi.gatewayIP().toString());
   url.concat(":7001/schedule");
@@ -100,12 +100,12 @@ void Master::schedule(NodeInfo* nodeInfo)
     Schedule schedule;
     schedule.fromJson(scheduleJson);
     nodeInfo->modSchedule(schedule);
-  }
+  }*/
 }
 
 void Master::heartbeat(String name)
 {
-  ClientJson http;
+  /*ClientJson http;
   String url("http://");
   url.concat(WiFi.gatewayIP().toString());
   url.concat(":7001/heartbeat");
@@ -122,6 +122,6 @@ void Master::heartbeat(String name)
   json.set<String>("n", name);
 
   http.sendRequest("POST", json);
-  
-  WiFi.mode(WIFI_AP_STA);
+
+  WiFi.mode(WIFI_AP_STA);*/
 }

@@ -39,4 +39,6 @@ public:
 protected:
   int _port;
   bool _connect();
+  unsigned long lastConnection = 0;
+  static const int reset_interval = 30 * 60 * 1000; // 30m
 };

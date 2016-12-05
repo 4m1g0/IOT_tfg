@@ -29,19 +29,25 @@ unsigned short CurrentMeter::measure()
   unsigned long currentAcc = 0;
   unsigned int count = 0;
   unsigned long prevMicros = micros() - sampleInterval;
-
+  unsigned long total = 0;
+  unsigned long count1 = 0;
+  yield();
   while (count < numSamples)
   {
     if (micros() - prevMicros >= sampleInterval)
     {
       unsigned long adc_raw = (long) analogRead(_pin) - (long) adc_zero;
+      total += (long) analogRead(_pin);
       currentAcc += (unsigned long) (adc_raw * adc_raw);
       ++count;
       prevMicros += sampleInterval;
     }
+    count1++;
   }
-
-  float measure = (float) sqrt((float)currentAcc/(float)numSamples) * (40 / 1024.0);
+  yield();
+  Serial.println(count1-count);
+  Serial.println(String("mean: ") + (float)total/(float)numSamples);
+  float measure = (float) sqrt((float)currentAcc/(float)numSamples) * (36.0 / 1024.0);
   //Serial.println(analogRead(_pin));
   //Serial.print("float: ");
   //Serial.println((measure * 100.0f));

@@ -28,3 +28,4 @@ void updateNetwork();
 bool isMaster();
 void poolAllSlaves();
 void handleConfig(ESP8266WebServer* server);
+void wifiEventListener(WiFiEvent_t event);

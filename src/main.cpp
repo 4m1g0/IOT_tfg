@@ -44,6 +44,7 @@ unsigned long lastSchedule = 0;
 unsigned long lastPrincingUpdate = 0;
 unsigned long lastFirmwareUpdate = 0;
 unsigned long lastHeartbeat = 0;
+unsigned long lastReset = 0;
 const uint8_t ACT_PIN = D5;
 
 Config* config;
@@ -52,13 +53,17 @@ Pricing* pricing;
 std::map <String, std::pair <IPAddress,unsigned long>> nodeList;
 
 ESP8266WebServer configServer(80); // Config server (web)
-MeshServer meshServer(7001);
+//MeshServer meshServer(7001);
 RemoteServer remoteServer(8080);
 
 CurrentMeter currentMeter(A0);
 
 void setup()
 {
+  ESP.eraseConfig();
+  WiFi.setAutoConnect(false); // workarround sdk bug
+  WiFi.setAutoReconnect(false);
+  lastReset = millis();
   pinMode(ACT_PIN, OUTPUT_OPEN_DRAIN);
   digitalWrite(ACT_PIN, HIGH);
   Serial.begin(9600);
@@ -74,6 +79,17 @@ void setup()
   config = new Config(CONFIG_PATH);
   nodeInfo = new NodeInfo();
 
+  WiFi.onStationModeGotIP([](const WiFiEventStationModeGotIP& event)
+    {
+      Serial.print("Connected, IP: ");
+      Serial.println(WiFi.localIP());
+    });
+  WiFi.onStationModeDisconnected([](const WiFiEventStationModeDisconnected& event)
+    {
+      WiFi.disconnect(); // workarround sdk bug (ap not working when sta disconnected)
+      Serial.println("Station disconnected");
+    });
+
   WiFi.mode(WIFI_AP_STA);
   Serial.println((config->ssid_prefix + String(ESP.getChipId())).c_str());
   WiFi.softAP((config->ssid_prefix + String(ESP.getChipId())).c_str(), "12345678");
@@ -81,13 +97,16 @@ void setup()
   updateNetwork();
   lastNetworkUpdate = millis();
 
-  int i = 0;
-  while (!Clock::updateTime() && i++ < 3)
+  if (WiFi.status() == WL_CONNECTED)
   {
-    Serial.println("Unable to get time. ");
-    delay(5000);
+    int i = 0;
+    while (!Clock::updateTime() && i++ < 3)
+    {
+      Serial.println("Unable to get time. ");
+      delay(500);
+    }
+    lastTimeUpdate = millis();
   }
-  lastTimeUpdate = millis();
 
   if (isMaster())
     pricing = new Pricing();
@@ -103,7 +122,7 @@ void setup()
   remoteServer.on("/nodes", HTTP_GET, [](){ RESTMethods::getNodes(remoteServer); });
   remoteServer.onNotFound([](){ RESTMethods::deleteSchedule(remoteServer); });
 
-  meshServer.on("/", [](){ meshServer.send(200, "text/html; charset=UTF-8", "It Works!"); });
+  /*meshServer.on("/", [](){ meshServer.send(200, "text/html; charset=UTF-8", "It Works!"); });
   meshServer.on("/schedules", HTTP_POST, [](){ RESTMethods::addSchedule(meshServer); });
   meshServer.on("/schedules", HTTP_PUT, [](){ RESTMethods::modSchedule(meshServer); });
   meshServer.on("/schedules", HTTP_DELETE, [](){ RESTMethods::deleteSchedule(meshServer); });
@@ -115,11 +134,11 @@ void setup()
   meshServer.on("/history", HTTP_GET, [](){ RESTMethods::getHistory(meshServer); });
   meshServer.on("/heartbeat", HTTP_POST, [](){ RESTMethods::heartbeat(meshServer); });
   meshServer.onNotFound([](){ RESTMethods::deleteSchedule(meshServer); });
-
+*/
   configServer.on("/", [](){ handleConfig(&configServer); });
 
   configServer.begin();
-  meshServer.begin();
+  //meshServer.begin();
 }
 
 void loop()
@@ -129,13 +148,20 @@ void loop()
     delay(10000);
   #endif
 
+  if (WiFi.status() != WL_CONNECTED && WiFi.getMode() == WIFI_AP_STA)
+  {
+    // when we cannot connect to any ap, we set ap mode to workarround a sdk bug
+    Serial.println("Set AP mode...");
+    WiFi.mode(WIFI_AP);
+  }
+
   yield();
   // network update
   if ((unsigned long)(millis() - lastNetworkUpdate) > config->network_interval)
   {
     updateNetwork();
     lastNetworkUpdate = millis();
-    Serial.println("network");
+    Serial.println("Network update...");
   }
 
   if (WiFi.status() == WL_CONNECTED)
@@ -149,6 +175,7 @@ void loop()
   if ((unsigned long)(millis() - lastMeasure) > config->measure_interval)
   {
     // measure current and save it in the history
+    Serial.println(Clock::getHumanDateTime(Clock::getUnixTime()));
     Serial.println("Measuring...");
     unsigned short current = currentMeter.measure();
     Serial.print("Current: "); Serial.println(current);
@@ -159,7 +186,7 @@ void loop()
   if (WiFi.status() == WL_CONNECTED)
     if ((unsigned long)(millis() - lastTimeUpdate) > config->updatetime_interval)
     {
-      Serial.println("clock");
+      Serial.println("Clock update...");
       Clock::updateTime();
       lastTimeUpdate = millis();
     }
@@ -167,8 +194,8 @@ void loop()
 
   if ((unsigned long)(millis() - lastSchedule) > config->schedule_interval)
   {
+    Serial.println("Scheduler update...");
     // power on and off depending on schedules
-    Serial.println("schedule");
     Scheduler::updateSchedules(*pricing, *nodeInfo);
     Scheduler::schedule(*nodeInfo);
     lastSchedule = millis();
@@ -178,12 +205,12 @@ void loop()
     if ((unsigned long)(millis() - lastFirmwareUpdate) > config->firmwareUpdate_interval)
     {
       lastFirmwareUpdate = millis();
-      Serial.println("Searching for firmware updates");
-      t_httpUpdate_return ret = ESPhttpUpdate.update("https://4m1g0.com/update.php", "1", "FB 45 62 97 8D 0F 85 E1 5A E9 DB 87 70 35 E4 D1 04 75 87 6E");
+      Serial.println("Searching for firmware updates...");
+      t_httpUpdate_return ret = ESPhttpUpdate.update("https://aalborgiot.4m1g0.com/update1.bin", "1", "4C 7C AD 53 B1 43 9F 10 93 D6 A9 9F 9D 44 64 51 6F 27 12 09");
 
       switch(ret) {
           case HTTP_UPDATE_FAILED:
-              Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+              Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s\n", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
               break;
 
           case HTTP_UPDATE_NO_UPDATES:
@@ -221,5 +248,12 @@ void loop()
       }
     }
 
-  meshServer.handleClient();
+  //meshServer.handleClient();
+
+  if ((unsigned long)(millis() - lastReset) > config->reset_interval)
+  {
+    lastReset = millis();
+    Serial.println("System restart...");
+    ESP.restart();
+  }
 }

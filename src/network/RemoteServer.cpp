@@ -26,6 +26,7 @@ bool RemoteServer::_connect()
 {
   if (_currentClient.connect(config->proxy_url.c_str(), _port))
   {
+    lastConnection = millis();
     _currentClient.println("ID: " + config->network_id);
     return true;
   }
@@ -65,9 +66,17 @@ uint8_t RemoteServer::status()
     return CLOSED;
 }
 
-void RemoteServer::handleClient() {
+void RemoteServer::handleClient()
+{
   if (!_currentClient.connected() && !_connect())
     return;
+
+  if ((unsigned long)(millis() - lastConnection) > reset_interval)
+  {
+    stop();
+    delay(500);
+    begin();
+  }
 
   if(!_currentClient.available())
     return;
