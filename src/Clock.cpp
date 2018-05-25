@@ -63,7 +63,7 @@ bool Clock::updateTime()
 
     delay(1000);
     unsigned long startTime = millis();
-    int cb;
+    int cb = 0;
     while((unsigned long)(millis() - startTime) < NTP_TIMEOUT && !cb)
       cb = udp.parsePacket();
 
